@@ -46,7 +46,7 @@
                 <div class="bg-white rounded-3xl shadow-xl p-8">
                     <h2 class="text-2xl font-medium text-gray-900 mb-8 text-center">Choose Date and Time</h2>
 
-                    <form action="{{ route('booking.store') }}" method="POST" id="bookingForm">
+                    <form action="{{ route('bookings.store') }}" method="POST" id="bookingForm">
                         @csrf
 
                         <!-- Date Selection -->
@@ -115,7 +115,35 @@
                             <div class="text-center mt-4 pt-4 border-t border-gray-200">
                                 <div class="text-2xl font-bold text-pink-600" id="summaryPrice">€0</div>
                             </div>
+                        <!-- Guest Information (only for non-authenticated users) -->
+                        @guest
+                        <div class="bg-gray-50 rounded-2xl p-6 mb-8">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Your Information</h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" name="name" id="name" value="{{ old('name') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" required>
+                                    @error('name')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" name="email" id="email" value="{{ old('email') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" required>
+                                    @error('email')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                    <input type="tel" name="phone" id="phone" value="{{ old('phone') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" required>
+                                    @error('phone')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
+                        @endguest
 
                         <!-- Submit Button -->
                         <div class="text-center">
@@ -208,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        fetch(`/api/services/${selectedService}/available-slots?date=${selectedDate}`)
+        fetch(`/api/appointments/available?service_id=${selectedService}&date=${selectedDate}`)
             .then(response => response.json())
             .then(data => {
                 availableSlots = data.available_slots || [];

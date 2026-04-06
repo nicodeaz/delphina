@@ -53,8 +53,14 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
-    public function isAdmin()
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, Appointment::class);
+    }
+
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 }
+

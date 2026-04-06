@@ -12,4 +12,9 @@ class HomeController extends Controller
         $services = Service::all();
         return view('home', compact('services'));
     }
+
+    public function policies()
+    {
+        return view('policies');
+    }
 }

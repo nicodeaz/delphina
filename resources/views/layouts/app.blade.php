@@ -5,241 +5,294 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- SEO Meta Tags -->
     <title>@yield('title', 'Nail Art Studio - Professional Nails in Dublin')</title>
-    <meta name="description" content="@yield('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online and discover why we are the preferred nail studio in Dublin.')">
-    <meta name="keywords" content="@yield('keywords', 'nails, manicure, pedicure, nail art, nail studio, online booking, premium treatments, Dublin')">
-    <meta name="author" content="Nail Art Studio">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="@yield('title', 'Nail Art Studio - Professional Nails in Dublin')">
-    <meta property="og:description" content="@yield('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online and discover why we are the preferred nail studio in Dublin.')">
-    <meta property="og:image" content="@yield('og-image', 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1200&h=630&fit=crop')">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="@yield('title', 'Nail Art Studio - Professional Nails in Dublin')">
-    <meta property="twitter:description" content="@yield('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online and discover why we are the preferred nail studio in Dublin.')">
-    <meta property="twitter:image" content="@yield('og-image', 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1200&h=630&fit=crop')">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="description" content="@yield('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online.')">
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- Schema.org structured data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BeautySalon",
-        "name": "Nail Art Studio",
-        "description": "Professional nail studio with unique designs and premium treatments",
-        "url": "{{ url('/') }}",
-        "telephone": "+353-1-123-4567",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Main Street 123",
-            "addressLocality": "Dublin",
-            "addressRegion": "Dublin",
-            "postalCode": "D01 1AA",
-            "addressCountry": "IE"
-        },
-        "openingHours": "Mo-Sa 09:00-18:00",
-        "priceRange": "€€",
-        "image": "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1200&h=630&fit=crop",
-        "sameAs": [
-            "https://instagram.com/nailartstudio"
-        ]
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Instagram-inspired color palette
+                        'instagram-pink': '#E4405F',
+                        'instagram-purple': '#8134AF',
+                        'instagram-blue': '#0095F6',
+                        'instagram-gradient-start': '#F56040',
+                        'instagram-gradient-middle': '#F77737',
+                        'instagram-gradient-end': '#FCAF45',
+                        // Brand colors
+                        'brand-pink': '#FF6B9D',
+                        'brand-purple': '#C77DFF',
+                        'brand-gold': '#FFD700',
+                        'brand-cream': '#FFF8DC',
+                        'brand-charcoal': '#36454F',
+                        // Neutral tones
+                        nude: '#F5E6D3',
+                        rose: '#E8C4D4',
+                        olive: '#8B9A7C',
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Poppins', 'sans-serif'],
+                        'instagram': ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'instagram-gradient': 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                        'brand-gradient': 'linear-gradient(135deg, #FF6B9D 0%, #C77DFF 50%, #FFD700 100%)',
+                    }
+                }
+            }
+        }
     </script>
-</head>
-<body class="font-sans antialiased bg-white text-gray-900">
-    <!-- Navigation -->
-    <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('home') }}" class="text-2xl font-light text-gray-900 hover:text-pink-600 transition-colors">
-                        NAIL ART
-                    </a>
-                </div>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Home</a>
-                    <a href="{{ route('booking.index') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Book</a>
-                    <a href="{{ route('home') }}#about" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">About</a>
+    <!-- Heroicons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    <script src="https://unpkg.com/heroicons@2.0.18/24/solid/index.js" type="module"></script>
+
+    <!-- Toast Notifications -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    @stack('styles')
+</head>
+<body class="font-sans antialiased bg-white text-gray-800" style="font-family: 'Poppins', sans-serif;">
+    <!-- Navigation -->
+    <nav class="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="{{ route('home') }}" class="flex items-center group">
+                    <svg viewBox="0 0 200 60" class="w-32 h-auto" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Gradient Definitions -->
+                        <defs>
+                            <linearGradient id="headerLogoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#C77DFF;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="headerNailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#C77DFF;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Nail Icon -->
+                        <g transform="translate(5, 10)">
+                            <path d="M10 3 L17 3 L17 10 Q17 14 13 14 L10 14 Q6 14 6 10 Z"
+                                  fill="url(#headerNailGradient)"
+                                  stroke="#FFD700"
+                                  stroke-width="0.5"/>
+                            <path d="M10 3 L13 1 L17 3"
+                                  fill="#FFD700"/>
+                            <rect x="8" y="5.5" width="7" height="1.5" fill="white" rx="0.5"/>
+                        </g>
+
+                        <!-- Text -->
+                        <text x="30" y="18" font-family="Poppins, sans-serif" font-size="12" font-weight="700" fill="url(#headerLogoGradient)">
+                            NAILS BY
+                        </text>
+                        <text x="30" y="32" font-family="Playfair Display, serif" font-size="16" font-weight="600" fill="#36454F">
+                            DELPHINA
+                        </text>
+                    </svg>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ route('home') }}" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Home</a>
+                    <a href="{{ route('home') }}#services" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Services</a>
+                    <a href="{{ route('booking.create') }}" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Book</a>
+                    <a href="{{ route('home') }}#portfolio" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Portfolio</a>
+                    <a href="{{ route('policies') }}" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Policies</a>
 
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Admin</a>
+                            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors">
+                                <i class="fas fa-crown"></i> Admin
+                            </a>
                         @endif
-                        <div class="relative">
-                            <button onclick="toggleDropdown()" class="flex items-center text-gray-700 hover:text-pink-600 transition-colors font-medium">
-                                <span>{{ auth()->user()->name }}</span>
-                                <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                </svg>
+
+                        <div class="relative group">
+                            <button class="px-4 py-2 flex items-center space-x-2 text-gray-700 hover:text-rose transition-colors">
+                                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=E8C4D4&color=fff"
+                                     alt="" class="w-8 h-8 rounded-full">
+                                <span class="font-medium">{{ auth()->user()->name }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile</a>
-                                <form method="POST" action="{{ route('logout') }}">
+
+                            <div class="hidden group-hover:block absolute right-0 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                                @if(auth()->user()->isAdmin())
+                                    <a href="{{ route('admin.appointments.index') }}" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                        <i class="fas fa-calendar-alt mr-2"></i> Appointments
+                                    </a>
+                                    <a href="{{ route('admin.payments.index') }}" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                        <i class="fas fa-credit-card mr-2"></i> Payments
+                                    </a>
+                                @endif
+                                <hr class="my-2">
+                                <form method="POST" action="{{ route('admin.logout') }}" class="w-full">
                                     @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Logout</button>
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                    </button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Sign In</a>
-                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-2 rounded-full hover:from-pink-600 hover:to-purple-700 transition-all font-medium">
-                            Sign Up
-                        </a>
+                        <!-- Admin-only system - no public login/register needed -->
                     @endauth
                 </div>
 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-pink-600">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-2xl text-gray-700"></i>
+                </button>
             </div>
 
-            <!-- Mobile Navigation -->
-            <div id="mobile-menu" class="hidden md:hidden pb-4">
-                <div class="flex flex-col space-y-4">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Home</a>
-                    <a href="{{ route('booking.index') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Book</a>
-                    <a href="{{ route('home') }}#about" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">About</a>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden pb-6 border-t border-gray-200">
+                <div class="flex flex-col space-y-3 mt-4">
+                    <a href="{{ route('home') }}" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Home</a>
+                    <a href="{{ route('home') }}#servicios" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Services</a>
+                    <a href="{{ route('book') }}" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Book</a>
+                    <a href="{{ route('policies') }}" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Policies</a>
 
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Admin</a>
+                            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-orange-600 font-semibold hover:bg-gray-50 rounded transition-colors">Admin</a>
                         @endif
-                        <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Profile</a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.appointments.index') }}" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Appointments</a>
+                            <a href="{{ route('admin.payments.index') }}" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Payments</a>
+                        @endif
+                        <form method="POST" action="{{ route('admin.logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="text-left text-gray-700 hover:text-pink-600 font-medium">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Logout</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-pink-600 transition-colors font-medium">Sign In</a>
-                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-2 rounded-full hover:from-pink-600 hover:to-purple-700 transition-all font-medium text-center">
-                            Sign Up
-                        </a>
+                        <!-- Admin-only system - no public login/register needed -->
                     @endauth
-                </div>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1">
+    <main class="min-h-[calc(100vh-140px)]">
+        @if(session('success'))
+            <script>
+                toastr.success("{{ session('success') }}", "Success!");
+            </script>
+        @endif
+        @if(session('error'))
+            <script>
+                toastr.error("{{ session('error') }}", "Error!");
+            </script>
+        @endif
+        
         @yield('content')
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-50 border-t border-gray-100 py-12">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="md:col-span-2">
-                    <h3 class="text-2xl font-light text-gray-900 mb-4">NAIL ART</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Professional nail studio specializing in unique designs and premium treatments.
-                        Your destination for perfect nails.
+    <footer class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <!-- About -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-rose to-pink-300 rounded-full flex items-center justify-center">
+                            <i class="fas fa-sparkles text-white text-sm"></i>
+                        </div>
+                        <span class="text-lg font-serif font-bold text-white">NAIL ART</span>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed">
+                        Professional nail studio with unique designs and premium treatments. Your destination for perfect nails in Dublin.
                     </p>
-                    <div class="flex space-x-4">
-                        <a href="https://instagram.com/nailartstudio" target="_blank" class="text-gray-400 hover:text-pink-600 transition-colors">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                            </svg>
-                        </a>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-rose transition-colors"><i class="fab fa-instagram text-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-rose transition-colors"><i class="fab fa-facebook text-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-rose transition-colors"><i class="fab fa-tiktok text-lg"></i></a>
                     </div>
                 </div>
 
+                <!-- Quick Links -->
                 <div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-4">Links</h4>
-                    <ul class="space-y-3">
-                        <li><a href="{{ route('home') }}" class="text-gray-600 hover:text-pink-600 transition-colors">Home</a></li>
-                        <li><a href="{{ route('booking.index') }}" class="text-gray-600 hover:text-pink-600 transition-colors">Book Appointment</a></li>
-                        <li><a href="{{ route('home') }}#about" class="text-gray-600 hover:text-pink-600 transition-colors">About</a></li>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ route('home') }}" class="text-gray-400 hover:text-rose transition-colors">Home</a></li>
+                        <li><a href="{{ route('appointments.index') }}" class="text-gray-400 hover:text-rose transition-colors">Book Appointment</a></li>
+                        <li><a href="#servicios" class="text-gray-400 hover:text-rose transition-colors">Services</a></li>
                     </ul>
                 </div>
 
+                <!-- Hours -->
                 <div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-4">Contact</h4>
-                    <ul class="space-y-3 text-gray-600">
-                        <li class="flex items-center">
-                            <span class="mr-2">📞</span>
-                            <a href="tel:+353123456789" class="hover:text-pink-600 transition-colors">+353 (0)1 234 5678</a>
+                    <h4 class="text-white font-semibold mb-4">Opening Hours</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Monday - Friday: 09:00 - 18:00</li>
+                        <li>Saturday: 10:00 - 17:00</li>
+                        <li>Sunday: Closed</li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-phone text-rose mt-1"></i>
+                            <a href="tel:+353123456789" class="hover:text-rose transition-colors">+353 (0)1 234 5678</a>
                         </li>
-                        <li class="flex items-center">
-                            <span class="mr-2">📧</span>
-                            <a href="mailto:info@nailartstudio.ie" class="hover:text-pink-600 transition-colors">info@nailartstudio.ie</a>
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-envelope text-rose mt-1"></i>
+                            <a href="mailto:info@nailartstudio.ie" class="hover:text-rose transition-colors">info@nailartstudio.ie</a>
                         </li>
-                        <li class="flex items-center">
-                            <span class="mr-2">📍</span>
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-map-pin text-rose mt-1"></i>
                             <span>Main Street 123, Dublin</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-200 mt-8 pt-8 text-center">
-                <p class="text-gray-500 text-sm">
-                    &copy; {{ date('Y') }} Nail Art Studio. All rights reserved.
-                    <span class="block mt-2">Crafted with ❤️ for demanding clients</span>
-                </p>
+            <hr class="border-gray-800 my-8">
+
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">&copy; {{ date('Y') }} Nail Art Studio. All rights reserved.</p>
+                <ul class="flex space-x-6 text-gray-400 text-sm mt-4 md:mt-0">
+                    <li><a href="#" class="hover:text-rose transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-rose transition-colors">Terms & Conditions</a></li>
+                    <li><a href="{{ route('admin.login') }}" class="hover:text-rose transition-colors font-medium">Admin</a></li>
+                </ul>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
     <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('dropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
         function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('dropdown');
-            const button = event.target.closest('button');
-            if (!button || !button.onclick || !dropdown.contains(event.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+        // Toast notifications configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+        };
     </script>
-
-    @yield('scripts')
+    
+    @stack('scripts')
 </body>
 </html>

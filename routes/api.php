@@ -9,13 +9,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// API Routes for Nail Art Studio
-Route::middleware('auth:sanctum')->group(function () {
-    // Services
-    Route::apiResource('services', ServiceController::class)->only(['index', 'show']);
+// Public API Routes (no authentication required)
+Route::get('appointments/available', [AppointmentController::class, 'availableSlots'])->name('appointments.available');
+Route::get('appointments/next-available-dates', [AppointmentController::class, 'nextAvailableDates'])->name('appointments.next-available-dates');
+Route::apiResource('services', ServiceController::class)->only(['index', 'show']);
 
+// Protected API Routes (require authentication)
+Route::middleware('auth:sanctum')->group(function () {
     // Appointments
-    Route::get('appointments/available', [AppointmentController::class, 'availableSlots']);
     Route::apiResource('appointments', AppointmentController::class)->except(['update']);
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
 

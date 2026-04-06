@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FFF8DC;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#F5E6D3;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="400" height="400" fill="url(#bg)"/>
+    <!-- BIAB Natural Look -->
+    <text x="200" y="170" text-anchor="middle" font-family="serif" font-size="22" fill="#36454F" font-weight="bold">BIAB</text>
+    <text x="200" y="200" text-anchor="middle" font-family="serif" font-size="22" fill="#36454F" font-weight="bold">Natural</text>
+    <text x="200" y="230" text-anchor="middle" font-family="serif" font-size="22" fill="#36454F" font-weight="bold">Extensions</text>
+    <text x="200" y="270" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#666" opacity="0.8">Invisible Beauty</text>
+    <!-- Natural nail illustration -->
+    <ellipse cx="200" cy="320" rx="80" ry="40" fill="#F5E6D3" stroke="#36454F" stroke-width="2"/>
+    <ellipse cx="200" cy="315" rx="75" ry="35" fill="#FFF8DC"/>
+</svg>

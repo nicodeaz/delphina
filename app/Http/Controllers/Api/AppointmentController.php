@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\AvailableDate;
 use App\Models\Payment;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class AppointmentController extends Controller
             'service_id' => $request->service_id,
             'date' => $request->date,
             'time' => $request->time,
-            'status' => 'pending',
+            'status' => 'confirmed', // Auto-approved per user request
         ]);
 
         Payment::create([
@@ -59,26 +60,56 @@ class AppointmentController extends Controller
         return response()->json(['message' => 'Appointment cancelled']);
     }
 
+    /**
+     * Get available time slots for a specific date and service
+     * Uses backend-configured available dates (NOT mock data)
+     */
     public function availableSlots(Request $request)
     {
         $request->validate([
             'service_id' => 'required|exists:services,id',
-            'date' => 'required|date',
+            'date' => 'required|date|after:today',
         ]);
 
         $service = Service::find($request->service_id);
-        $availableSlots = [];
+        
+        // Get slots from AvailableDate model (backend-configured)
+        $availableSlots = AvailableDate::slotsForDate($request->date, $service->duration);
 
-        for ($hour = 9; $hour <= 18; $hour++) {
-            for ($min = 0; $min < 60; $min += 30) {
-                $time = sprintf('%02d:%02d', $hour, $min);
-                if ($this->isAvailable($request->service_id, $request->date, $time)) {
-                    $availableSlots[] = $time;
-                }
-            }
-        }
+        // Filter out already booked slots
+        $bookedTimes = Appointment::where('date', $request->date)
+            ->where('service_id', $request->service_id)
+            ->where('status', '!=', 'cancelled')
+            ->pluck('time')
+            ->toArray();
 
-        return response()->json(['available_slots' => $availableSlots]);
+        $availableSlots = array_filter($availableSlots, function($slot) use ($bookedTimes) {
+            return !in_array($slot, $bookedTimes);
+        });
+
+        return response()->json([
+            'available_slots' => array_values($availableSlots),
+            'date' => $request->date,
+            'service_id' => $request->service_id,
+        ]);
+    }
+
+    /**
+     * Get next available dates (for UI dropdown/calendar view)
+     */
+    public function nextAvailableDates(Request $request)
+    {
+        $request->validate([
+            'days' => 'nullable|integer|min:1|max:90',
+        ]);
+
+        $days = $request->get('days', 30);
+        $dates = AvailableDate::nextAvailableDates($days);
+
+        return response()->json([
+            'available_dates' => $dates,
+            'count' => count($dates),
+        ]);
     }
 
     public function updateStatus(Request $request, Appointment $appointment)
@@ -101,21 +132,44 @@ class AppointmentController extends Controller
         return response()->json($appointment);
     }
 
+    /**
+     * Check if a specific time is available
+     */
     private function isAvailable($serviceId, $date, $time)
     {
-        $service = Service::find($serviceId);
-        $start = strtotime($time);
-        $end = $start + $service->duration * 60;
+        // Check if time is within available dates/times
+        $dateConfig = AvailableDate::where('date', $date)
+            ->where('is_active', true)
+            ->get();
 
-        $conflicting = Appointment::where('date', $date)
-            ->whereIn('status', ['pending', 'approved'])
-            ->get()
-            ->filter(function ($appointment) use ($start, $end) {
-                $appStart = strtotime($appointment->time);
-                $appEnd = $appStart + $appointment->service->duration * 60;
-                return ($start < $appEnd && $end > $appStart);
-            });
+        if ($dateConfig->isEmpty()) {
+            return false;
+        }
 
-        return $conflicting->isEmpty();
+        $timeObj = \DateTime::createFromFormat('H:i', $time);
+        
+        // Check if time falls within any configured period
+        $isWithinPeriod = false;
+        foreach ($dateConfig as $config) {
+            $startTime = \DateTime::createFromFormat('H:i', $config->start_time);
+            $endTime = \DateTime::createFromFormat('H:i', $config->end_time);
+            
+            if ($timeObj >= $startTime && $timeObj < $endTime) {
+                $isWithinPeriod = true;
+                break;
+            }
+        }
+
+        if (!$isWithinPeriod) {
+            return false;
+        }
+
+        // Check if slot is not already booked
+        $isBooked = Appointment::where('date', $date)
+            ->where('time', $time)
+            ->where('status', '!=', 'cancelled')
+            ->exists();
+
+        return !$isBooked;
     }
 }

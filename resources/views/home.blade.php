@@ -1,323 +1,536 @@
 @extends('layouts.app')
 
-@section('title', 'Nail Art Studio - Professional Nails in Dublin')
-@section('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online and discover why we are the preferred nail studio in Dublin.')
-@section('keywords', 'nails, manicure, pedicure, nail art, nail studio, online booking, premium treatments, Dublin')
-@section('og-image', 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1200&h=630&fit=crop')
-
 @section('content')
-<!-- Hero Section -->
-<section class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50">
-    <div class="absolute inset-0 bg-black bg-opacity-10"></div>
 
-    <!-- Instagram Grid Background -->
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-brand-cream via-white to-brand-pink/10">
+    <!-- Instagram-style background pattern -->
     <div class="absolute inset-0 opacity-5">
-        <div class="grid grid-cols-6 gap-1 h-full">
-            @for($i = 1; $i <= 36; $i++)
-            <div class="bg-gray-200"></div>
-            @endfor
+        <div class="absolute top-20 left-20 w-32 h-32 rounded-full bg-instagram-pink"></div>
+        <div class="absolute top-40 right-32 w-24 h-24 rounded-full bg-instagram-purple"></div>
+        <div class="absolute bottom-32 left-1/4 w-20 h-20 rounded-full bg-instagram-blue"></div>
+        <div class="absolute bottom-20 right-20 w-16 h-16 rounded-full bg-brand-gold"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl">
+        <!-- Logo -->
+        <div class="mb-8 flex justify-center">
+            @include('partials.logo')
+        </div>
+
+        <!-- Instagram-style badges -->
+        <div class="flex justify-center gap-6 mb-8 flex-wrap">
+            <div class="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                <span class="text-2xl">💅</span>
+                <span class="text-sm font-semibold text-brand-charcoal">Premium Quality</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                <span class="text-2xl">⭐</span>
+                <span class="text-sm font-semibold text-brand-charcoal">5★ Reviews</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                <span class="text-2xl">👑</span>
+                <span class="text-sm font-semibold text-brand-charcoal">Expert Technician</span>
+            </div>
+        </div>
+
+        <!-- Main Heading -->
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-instagram font-bold mb-6 leading-tight">
+            <span class="bg-gradient-to-r from-instagram-pink via-instagram-purple to-instagram-blue bg-clip-text text-transparent">
+                Perfect Nails
+            </span>
+            <br class="hidden md:block">
+            <span class="text-brand-charcoal">Made Simple</span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed font-instagram">
+            Transform your nails with premium gel extensions, BIAB, soft gel overlays, and stunning nail art.
+            Dublin's most trusted nail technician in Tallaght.
+        </p>
+
+        <!-- Instagram-style CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <a href="{{ route('booking.create') }}" class="px-8 py-4 bg-gradient-to-r from-instagram-pink to-instagram-purple text-white rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105 text-lg inline-flex items-center justify-center shadow-lg">
+                <i class="fas fa-sparkles mr-2"></i> Book Your Glow Up
+            </a>
+
+            <a href="#portfolio" class="px-8 py-4 border-2 border-brand-charcoal text-brand-charcoal rounded-full font-bold hover:bg-brand-charcoal hover:text-white transition-all text-lg inline-flex items-center justify-center">
+                <i class="fab fa-instagram mr-2"></i> View My Work
+            </a>
+        </div>
+
+        <!-- Social Proof -->
+        <div class="flex justify-center items-center space-x-8 text-sm text-gray-500">
+            <div class="flex items-center space-x-1">
+                <i class="fab fa-instagram text-instagram-pink"></i>
+                <span>@nailsbydelphina</span>
+            </div>
+            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div>500+ Happy Clients</div>
+            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div>8+ Years Experience</div>
         </div>
     </div>
 
-    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        <!-- Logo/Brand -->
-        <div class="mb-8">
-            <h1 class="text-6xl md:text-8xl font-light text-gray-900 mb-4 tracking-wider">
-                NAIL ART
-            </h1>
-            <div class="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto mb-6"></div>
-            <p class="text-xl md:text-2xl text-gray-600 font-light">
-                Professional Nail Studio
-            </p>
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <i class="fas fa-chevron-down text-brand-charcoal text-2xl"></i>
+    </div>
+</section>
         </div>
-
-        <!-- CTA Button -->
-        <div class="mb-12">
-            @auth
-                <a href="{{ route('booking.index') }}" class="inline-block bg-gradient-to-r from-pink-500 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover:shadow-pink-200">
-                    Book Now
-                </a>
-            @else
-                <a href="{{ route('booking.index') }}" class="inline-block bg-gradient-to-r from-pink-500 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover:shadow-pink-200">
-                    Book Now
-                </a>
-            @endauth
-        </div>
-
-        <!-- Instagram Preview -->
-        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 max-w-2xl mx-auto">
-            @for($i = 1; $i <= 6; $i++)
-            <div class="aspect-square bg-white rounded-lg shadow-lg overflow-hidden group cursor-pointer transform hover:scale-105 transition-transform">
-                <img src="https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=200&h=200&fit=crop&crop=center" alt="Nail art {{ $i }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </div>
-            @endfor
-        </div>
-
-        <p class="text-gray-500 mt-6 text-sm">Follow us on Instagram @nailartstudio</p>
     </div>
 
     <!-- Scroll Indicator -->
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
         </svg>
     </div>
 </section>
 
-<!-- Booking Section -->
-<section id="booking" class="py-24 bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<!-- Services Section - Instagram Inspired Design -->
+<section id="services" class="py-24 bg-gradient-to-b from-white via-brand-cream/30 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-light text-gray-900 mb-4">Book Your Appointment</h2>
-            <p class="text-xl text-gray-600">Choose your service and preferred time</p>
+            <div class="inline-flex items-center gap-2 mb-4">
+                <div class="h-1 w-12 bg-gradient-to-r from-instagram-pink to-instagram-purple"></div>
+                <span class="text-sm font-semibold bg-gradient-to-r from-instagram-pink to-instagram-purple bg-clip-text text-transparent uppercase tracking-wider">Our Services</span>
+                <div class="h-1 w-12 bg-gradient-to-r from-instagram-purple to-instagram-blue"></div>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-instagram font-bold text-brand-charcoal mb-6">
+                Premium Nail <span class="bg-gradient-to-r from-instagram-pink to-instagram-purple bg-clip-text text-transparent">Services</span>
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                From natural extensions to stunning nail art, discover the perfect treatment for your style
+            </p>
+        </div>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-6">
+                Professional Nail Services
+            </h2>
+            <p class="text-xl text-gray-600 max-w-2xl">
+                Curated selection of premium nail treatments designed for your comfort and satisfaction
+            </p>
         </div>
 
-        <div class="bg-gray-50 rounded-3xl p-8 md:p-12 shadow-xl">
-            <form action="{{ route('booking.store') }}" method="POST" class="space-y-8">
-                @csrf
-
-                <!-- Service Selection -->
-                <div>
-                    <label class="block text-lg font-medium text-gray-900 mb-6 text-center">Which service do you need?</label>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        @foreach($services as $service)
-                        <div class="service-card bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-pink-300 hover:shadow-lg transition-all cursor-pointer group" data-service-id="{{ $service->id }}">
-                            <div class="text-center">
-                                <div class="w-16 h-16 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-pink-200 group-hover:to-purple-200 transition-all">
-                                    <span class="text-2xl">💅</span>
-                                </div>
-                                <h3 class="text-xl font-medium text-gray-900 mb-2">{{ $service->name }}</h3>
-                                <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ $service->description }}</p>
-                                <div class="text-2xl font-bold text-pink-600 mb-4">€{{ $service->price }}</div>
-                                <div class="text-sm text-gray-500">{{ $service->duration }} min</div>
-                            </div>
-                            <input type="radio" name="service_id" value="{{ $service->id }}" class="hidden service-radio" required>
+        <!-- Services Grid - Minimal Design -->
+        <div class="grid lg:grid-cols-2 gap-8 mb-16">
+            <!-- Services List -->
+            <div class="space-y-3">
+                <!-- Gel Nails Services -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden hover:border-olive/30 hover:shadow-lg transition-all duration-300">
+                    <button class="service-category w-full px-6 py-4 bg-white hover:bg-gray-50 flex items-center justify-between font-semibold text-lg text-gray-900 cursor-pointer" data-category="gel">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">💅</span>
+                            <span>Gel Nails</span>
                         </div>
-                        @endforeach
-                    </div>
-                    @error('service_id')
-                        <p class="text-red-500 text-sm mt-2 text-center">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Date & Time -->
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div>
-                        <label for="date" class="block text-lg font-medium text-gray-900 mb-4">Date</label>
-                        <input type="date" name="date" id="date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" max="{{ date('Y-m-d', strtotime('+30 days')) }}"
-                               class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 text-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all"
-                               required>
-                        @error('date')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="time" class="block text-lg font-medium text-gray-900 mb-4">Time</label>
-                        <select name="time" id="time" class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 text-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all" required>
-                            <option value="">Select a time</option>
-                        </select>
-                        @error('time')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="text-center">
-                    <button type="submit" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover:shadow-pink-200">
-                        Confirm Booking
+                        <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
                     </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</section>
-
-<!-- About Section -->
-<section id="about" class="py-24 bg-gradient-to-br from-pink-50 to-purple-50">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
-            <!-- About Content -->
-            <div>
-                <h2 class="text-4xl md:text-5xl font-light text-gray-900 mb-8">About Me</h2>
-                <div class="space-y-6 text-lg text-gray-700 leading-relaxed">
-                    <p>
-                        I'm passionate about nails with over 8 years of experience creating unique designs and premium treatments. My goal is to make every client feel special and leave my studio with perfect nails that reflect their personality.
-                    </p>
-                    <p>
-                        I work with the highest quality products and innovative techniques to ensure lasting and natural results. Every design is personalized, from classic French manicures to the most daring nail art.
-                    </p>
-                    <p>
-                        My studio is a welcoming space where wellness and creativity come together. Here we not only care for your nails, but also offer you a moment of relaxation and self-care.
-                    </p>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-3 gap-8 mt-12">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-pink-600 mb-2">500+</div>
-                        <div class="text-gray-600">Happy Clients</div>
+                    <div class="service-options hidden bg-gray-50 divide-y divide-gray-100">
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Nails - Plain Colour" data-price="50" data-duration="120">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Plain Colour</div>
+                                <div class="text-sm text-gray-500">120 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€50</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Nails - French Tip / Ombre" data-price="55" data-duration="120">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">French Tip / Ombre</div>
+                                <div class="text-sm text-gray-500">120 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€55</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Nails - Infills / Refills" data-price="45" data-duration="90">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Infills / Refills</div>
+                                <div class="text-sm text-gray-500">90 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€45</span>
+                        </label>
                     </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-purple-600 mb-2">8+</div>
-                        <div class="text-gray-600">Years Experience</div>
+                </div>
+
+                <!-- BIAB Services -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden hover:border-olive/30 hover:shadow-lg transition-all duration-300">
+                    <button class="service-category w-full px-6 py-4 bg-white hover:bg-gray-50 flex items-center justify-between font-semibold text-lg text-gray-900 cursor-pointer" data-category="biab">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">✨</span>
+                            <span>BIAB</span>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div class="service-options hidden bg-gray-50 divide-y divide-gray-100">
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="BIAB - Clear or Nude Base" data-price="30" data-duration="60">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Clear or Nude Base</div>
+                                <div class="text-sm text-gray-500">60 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€30</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="BIAB - With Colour" data-price="35" data-duration="60">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">With Colour</div>
+                                <div class="text-sm text-gray-500">60 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€35</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="BIAB - With Nail Art" data-price="40" data-duration="75">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">With Nail Art</div>
+                                <div class="text-sm text-gray-500">75 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€40</span>
+                        </label>
                     </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-pink-600 mb-2">100%</div>
-                        <div class="text-gray-600">Premium Products</div>
+                </div>
+
+                <!-- Soft Gel Extensions -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden hover:border-olive/30 hover:shadow-lg transition-all duration-300">
+                    <button class="service-category w-full px-6 py-4 bg-white hover:bg-gray-50 flex items-center justify-between font-semibold text-lg text-gray-900 cursor-pointer" data-category="softgel">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">💄</span>
+                            <span>Soft Gel Extensions</span>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div class="service-options hidden bg-gray-50 divide-y divide-gray-100">
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Soft Gel - Plain Colour" data-price="40" data-duration="90">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Plain Colour</div>
+                                <div class="text-sm text-gray-500">90 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€40</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Soft Gel - French Tip / Ombre" data-price="45" data-duration="90">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">French Tip / Ombre</div>
+                                <div class="text-sm text-gray-500">90 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€45</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Soft Gel - Infills / Refills" data-price="35" data-duration="75">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Infills / Refills</div>
+                                <div class="text-sm text-gray-500">75 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€35</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Gel Polish -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden hover:border-olive/30 hover:shadow-lg transition-all duration-300">
+                    <button class="service-category w-full px-6 py-4 bg-white hover:bg-gray-50 flex items-center justify-between font-semibold text-lg text-gray-900 cursor-pointer" data-category="polish">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🎨</span>
+                            <span>Gel Polish</span>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div class="service-options hidden bg-gray-50 divide-y divide-gray-100">
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Polish - On Natural Nails" data-price="25" data-duration="45">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">On Natural Nails</div>
+                                <div class="text-sm text-gray-500">45 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€25</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Polish - Removal & Reapplication" data-price="30" data-duration="60">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Removal & Reapplication</div>
+                                <div class="text-sm text-gray-500">60 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€30</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Gel Polish - Removal Only" data-price="12" data-duration="30">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Removal Only</div>
+                                <div class="text-sm text-gray-500">30 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€12</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Add-ons & Extras -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden hover:border-olive/30 hover:shadow-lg transition-all duration-300">
+                    <button class="service-category w-full px-6 py-4 bg-white hover:bg-gray-50 flex items-center justify-between font-semibold text-lg text-gray-900 cursor-pointer" data-category="addons">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">✨</span>
+                            <span>Add-ons & Extras</span>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div class="service-options hidden bg-gray-50 divide-y divide-gray-100">
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Add-on - Nail Art" data-price="10" data-duration="15">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Nail Art Design</div>
+                                <div class="text-sm text-gray-500">+15 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€10</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Add-on - Cuticle Treatment" data-price="5" data-duration="15">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Cuticle Treatment</div>
+                                <div class="text-sm text-gray-500">+15 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€5</span>
+                        </label>
+                        <label class="px-6 py-4 flex items-center gap-3 hover:bg-olive/5 cursor-pointer transition-colors" data-service="Add-on - Hand Massage" data-price="8" data-duration="15">
+                            <input type="checkbox" class="service-checkbox w-5 h-5 rounded border-gray-300 text-olive focus:ring-olive" />
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Mini Hand Massage</div>
+                                <div class="text-sm text-gray-500">+15 min</div>
+                            </div>
+                            <span class="font-semibold text-olive">€8</span>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <!-- About Image -->
-            <div class="relative">
-                <div class="aspect-square bg-gradient-to-br from-pink-200 to-purple-200 rounded-3xl overflow-hidden shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?w=600&h=600&fit=crop" alt="Nail artist at work" class="w-full h-full object-cover">
-                </div>
-                <!-- Floating Elements -->
-                <div class="absolute -top-4 -right-4 w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <span class="text-2xl">✨</span>
-                </div>
-                <div class="absolute -bottom-4 -left-4 w-20 h-20 bg-pink-100 rounded-full shadow-lg flex items-center justify-center">
-                    <span class="text-2xl">💅</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+            <!-- Selection Summary & Available Dates -->
+            <div class="sticky top-8">
+                <!-- Selection Cart -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-8 mb-8 shadow-sm">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-olive" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z"></path>
+                        </svg>
+                        Your Selection
+                    </h3>
+                    
+                    <div id="selectedServices" class="space-y-3 mb-6">
+                        <p class="text-gray-500 text-sm">Select services to begin</p>
+                    </div>
 
-<!-- Instagram Gallery -->
-<section class="py-24 bg-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-light text-gray-900 mb-4">Follow us on Instagram</h2>
-            <p class="text-xl text-gray-600">@nailartstudio</p>
-        </div>
+                    <!-- Duration & Total -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-600">Total Duration</span>
+                            <span class="font-semibold text-gray-900" id="totalDuration">0 min</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-gray-600">Total Price</span>
+                            <span class="text-2xl font-bold text-olive" id="totalPrice">€0</span>
+                        </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            @for($i = 1; $i <= 12; $i++)
-            <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden group cursor-pointer transform hover:scale-105 transition-transform shadow-lg hover:shadow-xl">
-                <img src="https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=300&h=300&fit=crop&crop=center" alt="Instagram post {{ $i }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                    <div class="text-white text-center">
-                        <div class="text-2xl mb-1">❤️</div>
-                        <div class="text-sm">See more</div>
+                        <!-- CTA - Simple and Clean -->
+                        <button type="button" class="w-full mt-8 bg-olive hover:bg-olive-700 text-white font-semibold py-4 px-6 rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg" id="bookNowBtn" disabled>
+                            ✨ Book Now
+                        </button>
                     </div>
                 </div>
             </div>
-            @endfor
-        </div>
-
-        <div class="text-center mt-12">
-            <a href="https://instagram.com/nailartstudio" target="_blank" class="inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-                Seguir en Instagram
-            </a>
         </div>
     </div>
 </section>
 
-<!-- Contact CTA -->
-<section class="py-24 bg-gradient-to-r from-pink-500 to-purple-600">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-light text-white mb-6">Ready for perfect nails?</h2>
-        <p class="text-xl text-pink-100 mb-12 max-w-2xl mx-auto">Book your appointment today and discover why hundreds of clients choose me</p>
-        <div class="space-x-6">
-            @auth
-                <a href="{{ route('booking.index') }}" class="inline-block bg-white text-pink-600 px-8 py-4 rounded-full hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg font-medium">
-                    Book Now
-                </a>
-            @else
-                <a href="{{ route('register') }}" class="inline-block bg-white text-pink-600 px-8 py-4 rounded-full hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg font-medium">
-                    Create Account
-                </a>
-            @endauth
-            <a href="tel:+34123456789" class="inline-block border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white hover:text-pink-600 transition-all transform hover:scale-105 font-medium">
-                Call Now
-            </a>
-        </div>
-    </div>
-</section>
-@endsection
-
-@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const serviceCards = document.querySelectorAll('.service-card');
-    const dateInput = document.getElementById('date');
-    const timeSelect = document.getElementById('time');
+    const serviceCategoryButtons = document.querySelectorAll('.service-category');
+    const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+    const selectedServicesDiv = document.getElementById('selectedServices');
+    const totalDurationEl = document.getElementById('totalDuration');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const bookNowBtn = document.getElementById('bookNowBtn');
 
-    // Service selection
-    serviceCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Remove selected class from all cards
-            serviceCards.forEach(c => {
-                c.classList.remove('border-pink-500', 'bg-pink-50');
-                c.querySelector('.service-radio').checked = false;
-            });
+    let selectedServices = {};
 
-            // Add selected class
-            this.classList.add('border-pink-500', 'bg-pink-50');
-            this.querySelector('.service-radio').checked = true;
-
-            // Load available times if date is selected
-            if (dateInput.value) {
-                loadAvailableTimes();
-            }
+    // Toggle service category
+    serviceCategoryButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const options = this.nextElementSibling;
+            const icon = this.querySelector('svg');
+            
+            options.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
         });
     });
 
-    // Date change
-    dateInput.addEventListener('change', function() {
-        if (document.querySelector('.service-radio:checked')) {
-            loadAvailableTimes();
-        }
+    // Handle service selection
+    serviceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const label = this.closest('label');
+            const serviceName = label.dataset.service;
+            const price = parseFloat(label.dataset.price);
+            const duration = parseInt(label.dataset.duration);
+
+            if (this.checked) {
+                selectedServices[serviceName] = { price, duration };
+            } else {
+                delete selectedServices[serviceName];
+            }
+
+            updateSummary();
+        });
     });
 
-    function loadAvailableTimes() {
-        const selectedService = document.querySelector('.service-radio:checked');
-        if (!selectedService || !dateInput.value) return;
+    function updateSummary() {
+        // Update selected services display
+        if (Object.keys(selectedServices).length === 0) {
+            selectedServicesDiv.innerHTML = '<p class="text-gray-500 text-sm">Select services to begin</p>';
+            bookNowBtn.disabled = true;
+        } else {
+            selectedServicesDiv.innerHTML = Object.entries(selectedServices).map(([name, data]) => `
+                <div class="flex justify-between items-start gap-2 p-3 bg-olive/5 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900 text-sm">${name}</p>
+                        <p class="text-xs text-gray-500">${data.duration} min</p>
+                    </div>
+                    <p class="font-semibold text-olive">€${data.price}</p>
+                </div>
+            `).join('');
+            bookNowBtn.disabled = false;
+        }
 
-        timeSelect.innerHTML = '<option value="">Loading...</option>';
+        // Calculate totals
+        const totalDuration = Object.values(selectedServices).reduce((sum, s) => sum + s.duration, 0);
+        const totalPrice = Object.values(selectedServices).reduce((sum, s) => sum + s.price, 0);
 
-        fetch(`/api/services/${selectedService.value}/available-slots?date=${dateInput.value}`)
-            .then(response => response.json())
-            .then(data => {
-                timeSelect.innerHTML = '<option value="">Select time</option>';
-                if (data.available_slots && data.available_slots.length > 0) {
-                    data.available_slots.forEach(slot => {
-                        const option = document.createElement('option');
-                        option.value = slot;
-                        option.textContent = slot;
-                        timeSelect.appendChild(option);
-                    });
-                } else {
-                    timeSelect.innerHTML = '<option value="">No available time slots</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading times:', error);
-                timeSelect.innerHTML = '<option value="">Error loading time slots</option>';
-            });
+        totalDurationEl.textContent = `${totalDuration} min`;
+        totalPriceEl.textContent = `€${totalPrice}`;
     }
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
+    // Book button - send to booking page with selected services
+    bookNowBtn.addEventListener('click', function() {
+        if (Object.keys(selectedServices).length > 0) {
+            const serviceNames = Object.keys(selectedServices).map(name => 
+                encodeURIComponent(name)
+            ).join(',');
+            window.location.href = `{{ route('book') }}?services=${serviceNames}`;
+        }
     });
 });
 </script>
+
+<!-- Instagram Section -->
+<section id="portfolio" class="py-24 bg-gradient-to-b from-brand-cream/50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-3 mb-6">
+                <i class="fab fa-instagram text-3xl text-instagram-pink"></i>
+                <span class="text-2xl font-bold text-instagram-pink">@nailsbydelphina</span>
+                <i class="fab fa-instagram text-3xl text-instagram-pink"></i>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-instagram font-bold text-brand-charcoal mb-6">
+                Follow My <span class="bg-gradient-to-r from-instagram-pink to-instagram-purple bg-clip-text text-transparent">Journey</span>
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Get inspired by my latest creations, behind-the-scenes moments, and beauty tips
+            </p>
+        </div>
+
+        <!-- Instagram Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
+            @php
+                $instagramPosts = [
+                    ['image' => '/img/instagram/gel-nails-floral.jpg', 'likes' => '127', 'comments' => '8', 'caption' => 'Floral gel nails for spring 🌸 #gelnails #nailart'],
+                    ['image' => '/img/instagram/biab-natural.jpg', 'likes' => '89', 'comments' => '12', 'caption' => 'BIAB extensions with natural look 💅 #biab #naturalnails'],
+                    ['image' => '/img/instagram/soft-gel-overlay.jpg', 'likes' => '156', 'comments' => '15', 'caption' => 'Soft gel overlay perfection ✨ #softgel #nailtech'],
+                    ['image' => '/img/instagram/french-tips.jpg', 'likes' => '203', 'comments' => '22', 'caption' => 'Classic French tips never go out of style 💅 #frenchtips #classic'],
+                    ['image' => '/img/instagram/nail-art-design.jpg', 'likes' => '178', 'comments' => '19', 'caption' => 'Custom nail art design 🎨 #nailart #customnails'],
+                    ['image' => '/img/instagram/client-transformation.jpg', 'likes' => '145', 'comments' => '11', 'caption' => 'Before & after transformation! 🙌 #nailtransformation'],
+                    ['image' => '/img/instagram/studio-setup.jpg', 'likes' => '92', 'comments' => '7', 'caption' => 'My cozy studio setup 🏠 #nailstudio #behindthescenes'],
+                    ['image' => '/img/instagram/color-collection.jpg', 'likes' => '134', 'comments' => '16', 'caption' => 'New color collection arrived! 🌈 #nailpolish #colors'],
+                ];
+            @endphp
+            @foreach($instagramPosts as $post)
+            <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <!-- Image -->
+                <div class="aspect-square overflow-hidden">
+                    <img src="{{ $post['image'] }}"
+                         alt="Instagram Post" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                </div>
+
+                <!-- Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <!-- Instagram-style overlay -->
+                    <div class="absolute top-3 right-3 flex space-x-1">
+                        <div class="bg-black/50 backdrop-blur-sm rounded-full p-2">
+                            <i class="far fa-heart text-white text-sm"></i>
+                        </div>
+                        <div class="bg-black/50 backdrop-blur-sm rounded-full p-2">
+                            <i class="far fa-comment text-white text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex items-center space-x-4 text-white text-sm font-medium">
+                            <span><i class="fas fa-heart mr-1"></i>{{ $post['likes'] }}</span>
+                            <span><i class="fas fa-comment mr-1"></i>{{ $post['comments'] }}</span>
+                        </div>
+                        <p class="text-white text-xs mt-2 line-clamp-2">{{ $post['caption'] }}</p>
+                    </div>
+                </div>
+
+                <!-- Hover effect border -->
+                <div class="absolute inset-0 border-2 border-transparent group-hover:border-white/50 rounded-2xl transition-all duration-300"></div>
+            </div>
+            @endforeach
+        </div>
+
+        <!-- Follow CTA -->
+        <div class="text-center">
+            <div class="bg-gradient-to-r from-instagram-pink via-instagram-purple to-instagram-blue p-1 rounded-2xl inline-block">
+                <a href="https://instagram.com/nailsbydelphina" target="_blank"
+                   class="inline-flex items-center px-8 py-4 bg-white text-brand-charcoal rounded-xl font-bold hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fab fa-instagram mr-3 text-instagram-pink"></i>
+                    Follow @nailsbydelphina
+                    <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-r from-olive/95 to-green-700/95">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Ready for Perfect Nails?</h2>
+        <p class="text-xl text-white/90 mb-12">
+            Book your appointment today and let our professionals transform your nails.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ route('book') }}" class="px-12 py-4 bg-white text-olive rounded-lg font-bold text-lg hover:shadow-xl transition-all transform hover:scale-105">
+                <i class="fas fa-calendar-alt mr-2"></i> Book Now
+            </a>
+            
+            <a href="tel:+34123456789" class="px-12 py-4 border-2 border-white text-white rounded-lg font-bold text-lg hover:bg-white/10 transition-all">
+                <i class="fas fa-phone mr-2"></i> Call Us
+            </a>
+        </div>
+    </div>
+</section>
+
 @endsection
+
