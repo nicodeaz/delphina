@@ -54,10 +54,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Heroicons -->
-    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
-    <script src="https://unpkg.com/heroicons@2.0.18/24/solid/index.js" type="module"></script>
-
     <!-- Toast Notifications -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -72,39 +68,7 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <a href="{{ route('home') }}" class="flex items-center group">
-                    <svg viewBox="0 0 200 60" class="w-32 h-auto" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Gradient Definitions -->
-                        <defs>
-                            <linearGradient id="headerLogoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
-                                <stop offset="50%" style="stop-color:#C77DFF;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="headerNailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#C77DFF;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-
-                        <!-- Nail Icon -->
-                        <g transform="translate(5, 10)">
-                            <path d="M10 3 L17 3 L17 10 Q17 14 13 14 L10 14 Q6 14 6 10 Z"
-                                  fill="url(#headerNailGradient)"
-                                  stroke="#FFD700"
-                                  stroke-width="0.5"/>
-                            <path d="M10 3 L13 1 L17 3"
-                                  fill="#FFD700"/>
-                            <rect x="8" y="5.5" width="7" height="1.5" fill="white" rx="0.5"/>
-                        </g>
-
-                        <!-- Text -->
-                        <text x="30" y="18" font-family="Poppins, sans-serif" font-size="12" font-weight="700" fill="url(#headerLogoGradient)">
-                            NAILS BY
-                        </text>
-                        <text x="30" y="32" font-family="Playfair Display, serif" font-size="16" font-weight="600" fill="#36454F">
-                            DELPHINA
-                        </text>
-                    </svg>
+                    <img src="{{ Vite::asset('resources/img/logo_green.png') }}" alt="Delfina logo" class="h-12 w-auto">
                 </a>
 
                 <!-- Desktop Menu -->
@@ -172,9 +136,6 @@
 
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-orange-600 font-semibold hover:bg-gray-50 rounded transition-colors">Admin</a>
-                        @endif
-                        @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
                         <i class="fas fa-tachometer-alt mr-2"></i>
                         Dashboard
@@ -232,14 +193,12 @@
                 <!-- About -->
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 bg-gradient-to-br from-rose to-pink-300 rounded-full flex items-center justify-center">
-                            <i class="fas fa-sparkles text-white text-sm"></i>
-                        </div>
-                        <span class="text-lg font-serif font-bold text-white">NAIL ART</span>
+                       
+                        <img src="{{ Vite::asset('resources/img/logo.png') }}" alt="Nail Art Logo" class="h-8 w-auto">
                     </div>
                     <p class="text-gray-400 leading-relaxed">
                         Professional nail studio with unique designs and premium treatments. Your destination for perfect nails in Dublin.
-                    </p>
+                    </p>    
                     <div class="flex space-x-4 mt-6">
                         <a href="#" class="text-gray-400 hover:text-rose transition-colors"><i class="fab fa-instagram text-lg"></i></a>
                         <a href="#" class="text-gray-400 hover:text-rose transition-colors"><i class="fab fa-facebook text-lg"></i></a>
@@ -257,15 +216,15 @@
                     </ul>
                 </div>
 
-                <!-- Hours -->
-                <div>
-                    <h4 class="text-white font-semibold mb-4">Opening Hours</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Monday - Friday: 09:00 - 18:00</li>
-                        <li>Saturday: 10:00 - 17:00</li>
-                        <li>Sunday: Closed</li>
-                    </ul>
-                </div>
+                    <!-- Hours -->
+                    <div>
+                        <h4 class="text-white font-semibold mb-4">Opening Hours</h4>
+                        <ul class="space-y-2 text-gray-400">    
+                            <li>Monday - Friday: 09:00 - 18:00</li>
+                            <li>Saturday: 10:00 - 17:00</li>
+                            <li>Sunday: Closed</li>
+                        </ul>
+                    </div>
 
                 <!-- Contact -->
                 <div>

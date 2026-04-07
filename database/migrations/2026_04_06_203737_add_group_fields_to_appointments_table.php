@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->string('group_id')->nullable()->after('google_client_event_id');
+            $table->string('group_id')->nullable()->after('phone');
             $table->string('preferred_contact')->nullable()->after('phone');
             $table->text('notes')->nullable()->after('preferred_contact');
         });

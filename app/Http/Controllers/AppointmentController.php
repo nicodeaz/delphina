@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\GoogleCalendarService;
-use Illuminate\Support\Facades\Log;
+use App\Models\Appointment;
 
 class AppointmentController extends Controller
 {
@@ -25,15 +24,6 @@ class AppointmentController extends Controller
 
         if (!$appointment->canBeCancelled()) {
             return back()->with('error', 'This appointment cannot be cancelled.');
-        }
-
-        // Delete Google Calendar events before cancelling
-        try {
-            $calendarService = app(GoogleCalendarService::class);
-            $calendarService->deleteAppointmentEvents($appointment);
-        } catch (\Exception $e) {
-            Log::error('Failed to delete calendar events: ' . $e->getMessage());
-            // Continue with cancellation even if calendar deletion fails
         }
 
         $appointment->update(['status' => 'cancelled']);

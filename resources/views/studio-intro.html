@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beauty Studio</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#d8d2c6; overflow:hidden; }
+#three { position:fixed; inset:0; z-index:1; }
+#dust  { position:fixed; inset:0; z-index:2; pointer-events:none; }
+#ui {
+  position:fixed; inset:0; pointer-events:none; z-index:30;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-end;
+  padding-bottom:50px;
+}
+#title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(24px, 4vw, 52px);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 300;
+  color: #2c2418;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 2.2s ease, transform 2.2s ease;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 2px 12px rgba(100,80,50,0.14);
+}
+#sub {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(9px, 1.3vw, 13px);
+  letter-spacing: 0.48em;
+  color: rgba(70,55,35,0.70);
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateY(7px);
+  transition: opacity 2.2s 0.55s ease, transform 2.2s 0.55s ease;
+}
+.vis { opacity:1 !important; transform:translateY(0) !important; }
+#hint {
+  position: fixed; bottom:16px; right:20px;
+  font-family: Georgia, serif;
+  font-size: 9px; letter-spacing: 0.28em;
+  color: rgba(80,65,45,0.45);
+  pointer-events: none; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<canvas id="three"></canvas>
+<canvas id="dust"></canvas>
+<div id="ui">
+  <div id="title">Delfi</div>
+  <div id="sub">Nail Technician</div>
+</div>
+<div id="hint">drag · scroll</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  DUST CANVAS
+// ════════════════════════════════════════════════════════════════
+const dustC = document.getElementById('dust');
+dustC.width = window.innerWidth;
+dustC.height = window.innerHeight;
+const dc = dustC.getContext('2d');
+const dustPts = Array.from({length:35}, () => ({
+  x: Math.random()*window.innerWidth,
+  y: Math.random()*window.innerHeight,
+  r: 0.5 + Math.random()*1.8,
+  vy: 0.06 + Math.random()*0.18,
+  vx: (Math.random()-0.5)*0.10,
+  op: 0.04 + Math.random()*0.16,
+  ph: Math.random()*Math.PI*2
+}));
+function drawDust(t) {
+  dc.clearRect(0, 0, dustC.width, dustC.height);
+  // subtle vignette
+  const vg = dc.createRadialGradient(
+    dustC.width/2, dustC.height/2, dustC.height*0.25,
+    dustC.width/2, dustC.height/2, dustC.width*0.7
+  );
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.10)');
+  dc.fillStyle = vg;
+  dc.fillRect(0, 0, dustC.width, dustC.height);
+  dustPts.forEach(p => {
+    p.y -= p.vy;
+    p.x += p.vx + Math.sin(t*0.38 + p.ph)*0.08;
+    if (p.y < -4) { p.y = dustC.height+4; p.x = Math.random()*dustC.width; }
+    const alpha = p.op * (0.45 + Math.sin(t*0.75+p.ph)*0.55);
+    dc.beginPath();
+    dc.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    dc.fillStyle = `rgba(200,185,158,${alpha})`;
+    dc.fill();
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SCENE
+// ════════════════════════════════════════════════════════════════
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd8d2c8);  // warm greige walls
+scene.fog = new THREE.Fog(0xd0cac0, 8, 22);
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.05, 50);
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('three'),
+  antialias: true
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.physicallyCorrectLights = true;
+// ════════════════════════════════════════════════════════════════
+//  LIGHTING  — soft, no harsh bloom, natural interior
+// ════════════════════════════════════════════════════════════════
+// Ambient (dominant — matches soft diffuse wall light in photo)
+scene.add(new THREE.AmbientLight(0xfff4e8, 2.2));
+
+// Soft key from top-right (ceiling light / window)
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.2);
+keyLight.position.set(2, 7, 4);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.near = 0.5;
+keyLight.shadow.camera.far = 20;
+keyLight.shadow.camera.left = -5;
+keyLight.shadow.camera.right = 5;
+keyLight.shadow.camera.top = 6;
+keyLight.shadow.camera.bottom = -4;
+keyLight.shadow.bias = -0.001;
+keyLight.shadow.normalBias = 0.02;
+scene.add(keyLight);
+
+// Wall-bounce fill from left (the lighter area on back-left in photo)
+const wallBounce = new THREE.DirectionalLight(0xfff0e4, 0.5);
+wallBounce.position.set(-3, 4, 1);
+scene.add(wallBounce);
+
+// Front fill (avoids completely dark fronts of objects)
+const frontFill = new THREE.DirectionalLight(0xfff8f0, 0.4);
+frontFill.position.set(0, 3, 6);
+scene.add(frontFill);
+
+// Neon sign — warm white glow, LOW intensity (not bloomy)
+const neonPt = new THREE.PointLight(0xffeedd, 1.2, 2.5);
+neonPt.position.set(-0.62, 2.72, -2.82);
+scene.add(neonPt);
+
+// Under-shelf warm light (the warm glow visible inside right shelf)
+const shelfGlow = new THREE.PointLight(0xfff0d8, 0.6, 2.0);
+shelfGlow.position.set(1.1, 2.0, -3.4);
+scene.add(shelfGlow);
+// ════════════════════════════════════════════════════════════════
+//  MATERIALS
+// ════════════════════════════════════════════════════════════════
+function M(hex, rough, metal, extra) {
+  return new THREE.MeshStandardMaterial(Object.assign(
+    { color: new THREE.Color(hex), roughness: rough ?? 0.7, metalness: metal ?? 0 },
+    extra ?? {}
+  ));
+}
+// ── Structural whites (photo shows matte-ish off-white furniture)
+const mShelf  = M(0xf0ece4, 0.72, 0.0);  // shelf boards — slightly warm white
+const mTable  = M(0xeeeae2, 0.65, 0.0);  // table top
+const mChair  = M(0xeae8e0, 0.60, 0.0);  // chair shell
+// ── Walls + floor
+const mWall   = M(0xd8d2c6, 0.90, 0.0);  // greige walls
+const mCeil   = M(0xe0dbd4, 0.88, 0.0);
+const mSkirting = M(0xe8e2d8, 0.80, 0.0);
+// Floor planks — 6 variants
+const mFloor = [
+  M(0xc4885a, 0.76, 0.0), M(0xb87848, 0.80, 0.0),
+  M(0xcc9c60, 0.72, 0.0), M(0xbe9050, 0.78, 0.0),
+  M(0xb47040, 0.82, 0.0), M(0xd0a464, 0.74, 0.0),
+];
+const mGap    = M(0x221408, 0.98, 0.0);
+// ── Dark items
+const mBlack  = M(0x141210, 0.72, 0.0);  // bags, boxes
+const mNavy   = M(0x1a1e30, 0.68, 0.0);  // navy boxes/rolled mat
+const mChalk  = M(0x0e1008, 0.97, 0.0);  // chalkboard panel
+const mLeather= M(0x181614, 0.40, 0.02); // chair back cutout
+// ── Metals
+const mChrome = M(0xcecac6, 0.12, 0.88); // chair pedestal, lamp arm
+const mWheel  = M(0x1c1a18, 0.55, 0.18); // caster wheels
+// ── Plants
+const mLeafD  = M(0x264e1a, 0.88, 0.0);
+const mLeafM  = M(0x3c7028, 0.84, 0.0);
+const mLeafL  = M(0x52882e, 0.80, 0.0);
+const mLeafY  = M(0x6aaa30, 0.82, 0.0);
+const mCactus = M(0x386820, 0.86, 0.0);
+const mDryBr  = M(0xc8b878, 0.92, 0.0);
+const mDryCr  = M(0xdccfa8, 0.94, 0.0);
+const mSoil   = M(0x261a0a, 0.98, 0.0);
+// ── Pots
+const mPotT   = M(0x4a7268, 0.55, 0.03);  // teal
+const mPotS   = M(0x7a9868, 0.62, 0.0);   // sage
+const mPotBk  = M(0x1a1814, 0.68, 0.0);   // black
+// ── Products
+const mCream  = M(0xeddcc8, 0.72, 0.0);
+const mGold   = M(0xd4a020, 0.30, 0.60);
+const mMint   = M(0xa4ce9c, 0.68, 0.0);
+const mBlue   = M(0x2450c8, 0.62, 0.0);   // electric blue item
+const mKraft  = M(0xcc9e60, 0.82, 0.0);
+const mGlass  = M(0xc8e4e8, 0.08, 0.10, { transparent:true, opacity:0.50 });
+const mSpine  = M(0xdcd8b8, 0.90, 0.0);
+// ── Neon (warm white, moderate emissive — no over-bloom)
+const mNeon   = M(0xffffff, 0.10, 0.0, {
+  emissive: new THREE.Color(0xfff0cc), emissiveIntensity: 1.8
+});
+// ════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════
+function addM(mesh, cast=true, recv=true) {
+  if(cast) mesh.castShadow = true;
+  if(recv) mesh.receiveShadow = true;
+  scene.add(mesh); return mesh;
+}
+function bx(w,h,d, m, x,y,z, ry) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m);
+  mesh.position.set(x,y,z);
+  if (ry !== undefined) mesh.rotation.y = ry;
+  return addM(mesh);
+}
+function cy(rt,rb,h,seg, m, x,y,z, rx,ry) {
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), m);
+  mesh.position.set(x,y,z);
+  if (rx !== undefined) mesh.rotation.x = rx;
+  if (ry !== undefined) mesh.rotation.y = ry;
+  return addM(mesh);
+}
+function sp(r, m, x,y,z) {
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(r,12,9), m);
+  mesh.position.set(x,y,z);
+  mesh.castShadow = true; scene.add(mesh); return mesh;
+}
+function pl(w,h, m, x,y,z, rx,ry) {
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w,h), m);
+  mesh.position.set(x,y,z);
+  if (rx !== undefined) mesh.rotation.x = rx;
+  if (ry !== undefined) mesh.rotation.y = ry;
+  mesh.receiveShadow = true; scene.add(mesh); return mesh;
+}
+
+// ── LEAF CLUSTER — organic flattened ellipses ─────────────────
+function leafCluster(cx, cy, cz, scale, colors) {
+  const ms = colors || [mLeafD, mLeafM, mLeafL, mLeafY];
+  // outer spread
+  for (let i = 0; i < 26; i++) {
+    const a = (i/26)*Math.PI*2 + Math.random()*0.55;
+    const r = (0.05 + Math.random()*0.19) * scale;
+    const lf = new THREE.Mesh(
+      new THREE.SphereGeometry((0.045 + Math.random()*0.052)*scale, 8, 5),
+      ms[i % ms.length]
+    );
+    lf.scale.set(2.1, 0.38, 1.05);
+    lf.rotation.set(
+      (Math.random()-0.5)*1.3,
+      Math.random()*Math.PI,
+      (Math.random()-0.5)*0.8
+    );
+    lf.position.set(
+      cx + Math.cos(a)*r,
+      cy + 0.02 + Math.random()*0.27*scale,
+      cz + Math.sin(a)*r*0.52
+    );
+    lf.castShadow = true; scene.add(lf);
+  }
+  // drooping leaves
+  for (let i = 0; i < 4; i++) {
+    const a2 = (i/4)*Math.PI*2 + 0.4;
+    const lf = new THREE.Mesh(
+      new THREE.SphereGeometry(0.048*scale, 8, 5), ms[i%ms.length]
+    );
+    lf.scale.set(1.85*scale, 0.35*scale, 0.82*scale);
+    lf.rotation.set(0.68+Math.random()*0.35, (i/4)*Math.PI*2, (Math.random()-0.5)*0.5);
+    lf.position.set(
+      cx + Math.cos(a2)*0.14*scale,
+      cy - 0.07*scale,
+      cz + Math.sin(a2)*0.10*scale
+    );
+    scene.add(lf);
+  }
+  // upright stems
+  for (let i = 0; i < 4; i++) {
+    const sl = new THREE.Mesh(new THREE.SphereGeometry(0.042*scale,7,4), ms[1]);
+    sl.scale.set(0.38*scale, 2.1*scale, 0.34*scale);
+    sl.position.set(cx + (i-1.5)*0.08*scale, cy+0.24*scale, cz);
+    sl.rotation.z = (i-1.5)*0.28; scene.add(sl);
+  }
+}
+
+// ── DRIED BRANCH (recursive bifurcating) ─────────────────────
+function dryBranch(x,y,z, dx,dy,dz, depth) {
+  if (depth <= 0) return;
+  const len = 0.09 + Math.random()*0.10;
+  const nx = x + dx*len + (Math.random()-0.5)*0.035;
+  const ny = y + dy*len;
+  const nz = z + dz*len + (Math.random()-0.5)*0.035;
+  bx(0.004, len, 0.004, mDryBr, (x+nx)/2, (y+ny)/2, (z+nz)/2);
+  sp(0.012+Math.random()*0.012, Math.random()<0.4?mDryCr:mDryBr, nx,ny,nz);
+  if (depth > 1 && Math.random() < 0.65) {
+    dryBranch(nx,ny,nz, dx+(Math.random()-0.5)*0.4, dy-0.04, dz+(Math.random()-0.5)*0.3, depth-1);
+  }
+  dryBranch(nx,ny,nz, dx+(Math.random()-0.5)*0.12, dy+0.01, dz+(Math.random()-0.5)*0.10, depth-1);
+}
+// ════════════════════════════════════════════════════════════════
+//  ROOM: WALLS + CEILING + FLOOR
+// ════════════════════════════════════════════════════════════════
+// Back wall (greige)
+pl(9, 6, mWall,  0, 3.0, -4.2,  0, 0);
+// Left wall
+pl(7, 6, mWall, -4.0, 3.0, -0.7,  0, Math.PI/2);
+// Ceiling
+pl(9, 7, mCeil,  0, 5.4, -0.7,  -Math.PI/2, 0);
+// Skirting
+bx(9, 0.10, 0.022, mSkirting,  0, 0.05, -4.19);
+bx(0.022, 0.10, 7, mSkirting, -3.99, 0.05, -0.7);
+
+// ── FLOOR — wood planks ───────────────────────────────────────
+for (let i = -18; i <= 18; i++) {
+  const m = mFloor[Math.abs(i) % mFloor.length];
+  const plank = new THREE.Mesh(new THREE.BoxGeometry(0.188, 0.038, 10), m);
+  plank.position.set(i*0.2, -0.019, -0.5);
+  plank.castShadow = false; plank.receiveShadow = true;
+  scene.add(plank);
+  // gap
+  bx(0.010, 0.025, 10, mGap, i*0.2 + 0.099, -0.025, -0.5);
+}
+// ════════════════════════════════════════════════════════════════
+//  LEFT SHELF — tall Billy bookcase
+//  Width 1.76, height 4.9, depth 0.37
+//  RIGHT edge at LX+0.88 = -0.22 (gap before right shelf)
+//  Flush against back wall and left wall corner
+// ════════════════════════════════════════════════════════════════
+const LX = -1.10, LZ = -3.82;
+
+// Structure
+bx(1.76, 4.90, 0.044, mShelf,  LX, 2.45, LZ);             // back panel
+bx(0.044, 4.90, 0.37, mShelf,  LX-0.88, 2.45, LZ+0.185);  // left side
+bx(0.044, 4.90, 0.37, mShelf,  LX+0.88, 2.45, LZ+0.185);  // right side
+bx(1.76, 0.032, 0.37, mShelf,  LX, 0.016, LZ+0.185);      // bottom board
+bx(1.76, 0.032, 0.37, mShelf,  LX, 4.884, LZ+0.185);      // top board
+[1.22, 2.44, 3.66].forEach(y =>
+  bx(1.672, 0.032, 0.35, mShelf, LX, y, LZ+0.185)         // shelf boards
+);
+
+// ─── LEVEL 1 (floor to 1.22) ─────────────────────────────────
+// Large dark blue/black travel bag (left ~60% of shelf)
+bx(0.72, 0.40, 0.29, mBlack,  LX-0.27, 0.72, LZ+0.19);
+bx(0.68, 0.008, 0.27, mChrome, LX-0.27, 0.922, LZ+0.19);  // zipper
+// Stitching lines
+bx(0.68, 0.002, 0.004, M(0x060810,0.9), LX-0.27, 0.63, LZ+0.068);
+bx(0.68, 0.002, 0.004, M(0x060810,0.9), LX-0.27, 0.72, LZ+0.068);
+// Two navy stacked boxes (right side)
+bx(0.48, 0.19, 0.26, mNavy,  LX+0.34, 0.725, LZ+0.19);
+bx(0.48, 0.16, 0.26, mNavy,  LX+0.34, 0.920, LZ+0.19);
+// Fine detail line on navy boxes
+bx(0.46, 0.002, 0.24, M(0x24283c,0.7), LX+0.34, 0.830, LZ+0.185);
+// Small nail polish bottles standing at front-left of level 1
+[0xc82840,0xe8b020,0xc86010,0x88a8c8,0xa888c0,0x68a050].forEach((c,i) => {
+  const pm = M(c, 0.18, 0.08, {transparent:true, opacity:0.86});
+  cy(0.018,0.018,0.11,10,  pm, LX-0.60+i*0.095, 1.073, LZ+0.08);
+  cy(0.010,0.010,0.028,8, mBlack, LX-0.60+i*0.095, 1.134, LZ+0.08);
+});
+
+// ─── LEVEL 2 (1.22→2.44) ─────────────────────────────────────
+// Mint-green flat tray/box at back
+bx(0.52, 0.052, 0.28, mMint,  LX+0.25, 1.298, LZ+0.185);
+
+// Teal pot + leafy plant (left side)
+cy(0.105,0.082,0.178,14, mPotT,  LX-0.50, 1.305, LZ+0.19);
+cy(0.082,0.082,0.012,14, mSoil,  LX-0.50, 1.399, LZ+0.19);  // soil disc
+leafCluster(LX-0.50, 1.43, LZ+0.19, 0.98);
+
+// Small white flowers (center-left)
+for (let i = 0; i < 5; i++)
+  sp(0.020, M(0xf8f4ec,0.70), LX-0.22+i*0.036, 1.52+Math.random()*0.025, LZ+0.14);
+
+// Reed diffuser (sage pot + gold sticks)
+cy(0.044,0.038,0.13,12, mPotS,  LX-0.08, 1.310, LZ+0.20);
+for (let i = 0; i < 7; i++) {
+  const a = (i/7)*1.05 - 0.52;
+  bx(0.005,0.20,0.005, mGold,  LX-0.08+Math.sin(a)*0.017, 1.490, LZ+0.20+Math.cos(a)*0.010);
+}
+// Nail polish row (right side of level 2)
+[0xd83850,0xe8b020,0x4888cc,0xc060b8,0x40b870,0xe86030,0xdcc0a0].forEach((c,i) => {
+  const pm = M(c, 0.14, 0.08, {transparent:true, opacity:0.87});
+  cy(0.019,0.019,0.115,10, pm, LX+0.26+i*0.068, 1.322, LZ+0.21);
+  cy(0.011,0.011,0.028,8, mBlack, LX+0.26+i*0.068, 1.389, LZ+0.21);
+});
+
+// ─── LEVEL 3 (2.44→3.66) ─────────────────────────────────────
+// BIG green leafy plant — hero element
+cy(0.142,0.108,0.255,16, mPotBk, LX-0.30, 2.568, LZ+0.17);
+cy(0.105,0.105,0.012,16, mSoil,  LX-0.30, 2.694, LZ+0.17);
+leafCluster(LX-0.30, 2.74, LZ+0.17, 1.32, [mLeafD,mLeafM,mLeafL,mLeafY]);
+// Extra tall stems poking up above shelf
+for (let i = 0; i < 5; i++) {
+  const sl = new THREE.Mesh(new THREE.SphereGeometry(0.042,7,5), mLeafM);
+  sl.scale.set(0.38, 2.05, 0.34);
+  sl.position.set(LX-0.30+(i-2)*0.09, 3.10, LZ+0.18);
+  sl.rotation.z = (i-2)*0.29; scene.add(sl);
+}
+
+// NEON SIGN — hangs between shelves on right side of level 3
+// Black backing board
+bx(0.44, 0.26, 0.020, mBlack, LX+0.44, 2.94, LZ+0.375);
+// Neon tubes — warm white
+bx(0.31, 0.022, 0.022, mNeon, LX+0.44, 3.020, LZ+0.390);  // top bar
+bx(0.022,0.185,0.022, mNeon, LX+0.27, 2.930, LZ+0.390);  // left vert
+bx(0.022,0.185,0.022, mNeon, LX+0.44, 2.930, LZ+0.390);  // mid vert
+bx(0.022,0.185,0.022, mNeon, LX+0.61, 2.930, LZ+0.390);  // right vert
+bx(0.31, 0.022, 0.022, mNeon, LX+0.44, 2.845, LZ+0.390);  // bottom bar
+bx(0.165,0.022,0.022, mNeon, LX+0.44, 2.930, LZ+0.390);  // cross
+// Hanging cord
+bx(0.004, 0.33, 0.004, mBlack, LX+0.44, 2.64, LZ+0.375);
+// Soft glow sphere (low opacity — no harsh bloom)
+const neonGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(0.22, 10, 8),
+  M(0xffeecc, 0.5, 0, {transparent:true, opacity:0.045, depthWrite:false})
+);
+neonGlow.position.set(LX+0.44, 2.93, LZ+0.375); scene.add(neonGlow);
+
+// Kraft cardboard box on level 3 right
+bx(0.18, 0.20, 0.16, mKraft, LX+0.74, 2.64, LZ+0.20);
+
+// ─── LEVEL 4 TOP (3.66→4.88) ─────────────────────────────────
+// Navy rolled mat/fabric — horizontal cylinder on left
+cy(0.105,0.105,0.58,14, mNavy, LX-0.47, 4.255, LZ+0.188, 0, Math.PI/2);
+// Black box on right
+bx(0.46, 0.25, 0.27, mBlack, LX+0.35, 4.178, LZ+0.188);
+// Small transparent/clear organizer box
+bx(0.19, 0.15, 0.15, M(0xc8d5dc,0.10,0.05,{transparent:true,opacity:0.40}), LX-0.13, 4.168, LZ+0.188);
+// ════════════════════════════════════════════════════════════════
+//  RIGHT SHELF — Kallax-style cubby unit
+//  Width 1.65, height 3.80, depth 0.37
+//  Left edge at RX-0.825 = +0.295
+//  Gap from left shelf right edge (-0.22) = ~0.52 units ✓
+//  Photo shows 2 columns × 3 rows + internal subdivisions
+// ════════════════════════════════════════════════════════════════
+const RX = 1.12, RZ = -3.82;
+
+// Outer frame
+bx(1.65, 3.80, 0.044, mShelf,  RX, 1.90, RZ);
+bx(0.044,3.80, 0.37,  mShelf,  RX-0.825, 1.90, RZ+0.185);
+bx(0.044,3.80, 0.37,  mShelf,  RX+0.825, 1.90, RZ+0.185);
+bx(1.65, 0.032,0.37,  mShelf,  RX, 0.016, RZ+0.185);  // bottom
+bx(1.65, 0.032,0.37,  mShelf,  RX, 3.784, RZ+0.185);  // top
+// Internal horizontal shelves
+[1.267, 2.517].forEach(y => bx(1.562,0.032,0.35, mShelf, RX, y, RZ+0.185));
+// Central vertical divider
+bx(0.032,3.74, 0.35,  mShelf,  RX, 1.90, RZ+0.185);
+
+// ─── ROW 1 (floor to 1.267) ──────────────────────────────────
+// LEFT cubby: white box, cream pump bottle, small jar
+bx(0.16,0.17,0.17, M(0xeeeae2,0.58),  RX-0.48, 0.620, RZ+0.21);
+cy(0.052,0.047,0.160,12, M(0xf0e8d4,0.62), RX-0.32, 0.695, RZ+0.20);
+cy(0.007,0.007,0.088,8,  M(0xc8c0b0,0.40,0.30), RX-0.32, 0.831, RZ+0.20);
+cy(0.048,0.044,0.12,12,  M(0xe8e0d0,0.65), RX-0.60, 0.663, RZ+0.20);
+// RIGHT cubby: row of nail polishes
+[0xff6080,0xffbc30,0x58a0e0,0xe070c0,0x35bb78,0xff6828].forEach((c,i) => {
+  const pm = M(c, 0.14, 0.08, {transparent:true, opacity:0.87});
+  cy(0.020,0.020,0.118,10, pm,    RX+0.10+i*0.100, 0.688, RZ+0.21);
+  cy(0.011,0.011,0.028,8,  mBlack, RX+0.10+i*0.100, 0.757, RZ+0.21);
+});
+cy(0.047,0.044,0.080,12, M(0xd4ccc0,0.58), RX+0.72, 0.638, RZ+0.21);
+
+// ─── ROW 2 (1.267→2.517) ─────────────────────────────────────
+// LEFT cubby: amber/brown product bottles + wax bowl + craft sticks
+cy(0.076,0.072,0.060,14, M(0xf0ece6,0.40), RX-0.46, 1.517, RZ+0.20);  // wax bowl
+cy(0.073,0.073,0.012,14, M(0xfff6d8,0.30,0,{transparent:true,opacity:0.65}), RX-0.46,1.583,RZ+0.20);
+// craft stick holder
+cy(0.046,0.042,0.108,12, mPotBk, RX-0.26, 1.510, RZ+0.20);
+for (let i = 0; i < 9; i++) {
+  const a = (i/9)*Math.PI*2;
+  bx(0.010,0.175,0.010, M(0xe4ceA0,0.84), RX-0.26+Math.sin(a)*0.023,1.643,RZ+0.20+Math.cos(a)*0.015);
+}
+cy(0.027,0.024,0.130,10, mBlack, RX-0.60, 1.510, RZ+0.21);
+cy(0.023,0.020,0.105,10, M(0xb4a480,0.62), RX-0.52, 1.510, RZ+0.21);
+// RIGHT cubby: electric blue folded item + kraft box + small bowl
+bx(0.20,0.155,0.12, mBlue,  RX+0.20, 1.553, RZ+0.20);
+bx(0.20,0.23,0.18,  mKraft, RX+0.50, 1.632, RZ+0.19);
+cy(0.056,0.052,0.048,12, M(0xf2eee8,0.45), RX+0.09, 1.443, RZ+0.21);
+
+// ─── ROW 3 (2.517→3.784) ─────────────────────────────────────
+// LEFT cubby: small product bottles + eyelash/clear tray + brush holder
+for (let i = 0; i < 3; i++)
+  cy(0.034,0.030,0.128,10, M([0xe8d5bc,0xd8c4aa,0xc8b498][i],0.65), RX-0.52+i*0.20, 2.698, RZ+0.21);
+bx(0.24,0.035,0.13, M(0xdcecf0,0.12,0.05,{transparent:true,opacity:0.58}), RX-0.42,2.590,RZ+0.21);
+cy(0.035,0.032,0.108,12, mPotBk, RX-0.68, 2.655, RZ+0.20);
+for (let i = 0; i < 6; i++)
+  bx(0.007,0.105+Math.random()*0.085,0.007, mGold, RX-0.68+i*0.012,2.720,RZ+0.20);
+// RIGHT cubby: UV nail lamp + articulated chrome arm
+bx(0.255,0.158,0.235, M(0xf0ece4,0.48), RX+0.36,2.718,RZ+0.200);
+bx(0.238,0.036,0.218, M(0xeae6de,0.18,0.04), RX+0.36,2.797,RZ+0.200);
+// arm
+cy(0.010,0.010,0.245,8, mChrome, RX+0.61,2.875,RZ+0.19);
+cy(0.010,0.010,0.105,8, mChrome, RX+0.66,3.010,RZ+0.19);
+bx(0.14,0.044,0.082, M(0xeae6de,0.35,0.02), RX+0.68,3.068,RZ+0.19);
+// lamp head light strip
+bx(0.12,0.009,0.062, M(0xd0f0ff,0.10,0.10,{transparent:true,opacity:0.55}), RX+0.68,3.090,RZ+0.19);
+
+// ─── ON TOP of right shelf ───────────────────────────────────
+// (left→right in photo): black blender/device, black flat tray, cactus, aloe, dried plant
+
+// Black small appliance (blender-like)
+bx(0.195,0.175,0.175, mBlack, RX-0.50, 4.062, RZ+0.185);
+bx(0.070,0.070,0.070, M(0x808078,0.40,0.28), RX-0.50, 4.187, RZ+0.130);
+
+// Black flat tray/box
+bx(0.340,0.120,0.248, mBlack, RX-0.15, 4.004, RZ+0.188);
+
+// Cactus in black pot
+cy(0.068,0.058,0.112,12, mPotBk, RX+0.20, 3.908, RZ+0.20);
+cy(0.060,0.050,0.195,8,  mCactus, RX+0.20, 4.058, RZ+0.20);
+// cactus spines
+for (let i = 0; i < 14; i++) {
+  const a = (i/14)*Math.PI*2;
+  bx(0.078,0.005,0.005, mSpine, RX+0.20+Math.cos(a)*0.035, 4.050+i*0.012, RZ+0.20+Math.sin(a)*0.035);
+}
+
+// Small aloe-like plant in black pot
+cy(0.052,0.046,0.090,12, mPotBk, RX+0.44, 3.900, RZ+0.20);
+for (let i = 0; i < 5; i++) {
+  const a = (i/5)*Math.PI*2;
+  const sl = new THREE.Mesh(new THREE.SphereGeometry(0.034,6,4), mCactus);
+  sl.scale.set(0.38,1.95,0.34);
+  sl.position.set(RX+0.44+Math.cos(a)*0.040, 4.062, RZ+0.20+Math.sin(a)*0.026);
+  sl.rotation.z = Math.cos(a)*0.40; scene.add(sl);
+}
+
+// Dried cascading plant — right side, hangs down
+for (let i = 0; i < 5; i++)
+  dryBranch(RX+0.74+(i-2)*0.040, 3.875, RZ+0.185, (Math.random()-0.5)*0.12, -0.95, 0.02, 6);
+// ════════════════════════════════════════════════════════════════
+//  TABLE
+//  Photo: table long axis runs LEFT↔RIGHT (X axis)
+//  Pushed toward shelves, roughly centered between them
+//  Black chalkboard panel covers ENTIRE FRONT face
+//  TX=-0.28 centers between LX+0.88=-0.22 and RX-0.825=0.295
+//  Width=2.30 → right edge=TX+1.15=-0.28+1.15=+0.87 < 0.295? NO
+//  Actually gap is fine: right shelf left edge 0.295, table right +0.87
+//  But chair needs room → width 2.20, TX=-0.22
+//  right edge: -0.22+1.10=+0.88, left shelf right: -0.22 ← perfect flush
+// ════════════════════════════════════════════════════════════════
+const TX = -0.22, TZ = -1.35;
+
+// Table top
+const tabTop = new THREE.Mesh(new THREE.BoxGeometry(2.20, 0.062, 0.95), mTable);
+tabTop.position.set(TX, 1.612, TZ);
+tabTop.castShadow = true; tabTop.receiveShadow = true; scene.add(tabTop);
+
+// Legs — 4 slim white square legs
+[[-1.02,-0.42],[+1.02,-0.42],[-1.02,+0.42],[+1.02,+0.42]].forEach(([lx,lz]) => {
+  bx(0.048, 1.548, 0.048, mShelf, TX+lx, 0.806, TZ+lz);
+});
+
+// (chalkboard panel removed)
+
+// ── TABLE SURFACE ─────────────────────────────────────────────
+// White cushioned hand mat (left side — client rests hand here)
+bx(0.82, 0.012, 0.48, M(0xf8f5f0,0.85), TX-0.38, 1.618, TZ);
+
+// Two product bottles (right area)
+cy(0.026,0.022,0.158,12, mGlass,  TX+0.44, 1.696, TZ-0.04);
+cy(0.013,0.010,0.052,8,  mChrome, TX+0.44, 1.793, TZ-0.04);
+cy(0.021,0.018,0.122,10, M(0xeee4d8,0.28,0.04), TX+0.55, 1.690, TZ+0.05);
+
+// Small white tray
+bx(0.28,0.014,0.18, M(0xeeeae4,0.32,0.03), TX+0.49, 1.619, TZ+0.01);
+
+// ════════════════════════════════════════════════════════════════
+//  CHAIRS
+//  Photo analysis:
+//  - LEFT chair: positioned to LEFT of table's long edge
+//    seat faces RIGHT (toward table), back faces LEFT+slightly toward viewer
+//    rotated ~+95° (slightly past 90 so back angled toward us)
+//  - RIGHT chair: mirror image
+//  - BOTH chairs: entirely WHITE including base/wheels
+//  - Base is 5-star white with small white casters
+//  - Y fix: wheels at y=0 → group.y = 0.656
+// ════════════════════════════════════════════════════════════════
+function makeChair(cx, cz, rotY) {
+  const g = new THREE.Group();
+
+  // Seat shell — raised so surface matches table height (world 1.612)
+  // group.y=0.656, seat_rel_y=0.930 → seat center world = 1.586, top = 1.612 ✓
+  const SO = 0.930; // seat vertical offset within group
+  const seatGeo = new THREE.BoxGeometry(0.58, 0.052, 0.52);
+  const seat = new THREE.Mesh(seatGeo, mChair);
+  seat.position.y = SO;
+  seat.castShadow = true; seat.receiveShadow = true; g.add(seat);
+
+  // Front rounded edge
+  const fe = new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.026,0.58,14), mChair);
+  fe.rotation.z = Math.PI/2; fe.position.set(0, SO, 0.26); g.add(fe);
+  // Back rounded edge
+  const re = new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.026,0.58,14), mChair);
+  re.rotation.z = Math.PI/2; re.position.set(0, SO, -0.26); g.add(re);
+  // Left/right rounded edges
+  [-0.29, 0.29].forEach(xo => {
+    const se = new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.026,0.52,14), mChair);
+    se.rotation.set(Math.PI/2, 0, 0); se.position.set(xo, SO, 0); g.add(se);
+  });
+
+  // Back shell
+  const bk = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.44, 0.056), mChair);
+  bk.position.set(0, SO+0.245, -0.265); bk.rotation.x = -0.14;
+  bk.castShadow = true; g.add(bk);
+  // Back top rounded edge
+  const bt = new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,0.58,14), mChair);
+  bt.rotation.z = Math.PI/2; bt.position.set(0, SO+0.468, -0.298); g.add(bt);
+  // Back side curves
+  [-0.290,0.290].forEach(xo => {
+    const sc = new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,0.46,14), mChair);
+    sc.rotation.x = -0.14; sc.position.set(xo, SO+0.244, -0.265); g.add(sc);
+  });
+
+  // Oval cutout
+  const co = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.155, 0.065), mLeather);
+  co.position.set(0, SO+0.245, -0.267); co.rotation.x = -0.14; g.add(co);
+
+  // Chrome pedestal — extended to bridge base to raised seat
+  // From hub (rel -0.638) up to seat bottom (rel SO-0.026 = 0.904)
+  // center = (0.904 + (-0.638))/2 = 0.133, height = 0.904-(-0.638) = 1.542
+  const pedH = SO - 0.026 - (-0.638); // 1.542
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.040, pedH, 12), mChrome);
+  ped.position.set(0, -0.638 + pedH/2, 0); ped.castShadow = true; g.add(ped);
+  // Hub disc
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.048,0.048,0.018,12), mChrome);
+  hub.position.set(0, -0.638, 0); g.add(hub);
+
+  // 5-star base — WHITE (as in photo)
+  for (let i = 0; i < 5; i++) {
+    const a = (i/5)*Math.PI*2;
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.38,0.025,0.042), M(0xe8e6de,0.60));
+    arm.position.set(Math.cos(a)*0.170, -0.644, Math.sin(a)*0.170);
+    arm.rotation.y = a; g.add(arm);
+    // Caster housing (white)
+    const ch = new THREE.Mesh(new THREE.BoxGeometry(0.050,0.038,0.036), M(0xdedcd4,0.55));
+    ch.position.set(Math.cos(a)*0.342, -0.648, Math.sin(a)*0.342);
+    ch.rotation.y = a; g.add(ch);
+    // Caster wheel (slightly darker white/grey)
+    const cw = new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,0.035,8), M(0xd0cec6,0.50,0.10));
+    cw.rotation.z = Math.PI/2;
+    cw.position.set(Math.cos(a)*0.342, -0.652, Math.sin(a)*0.342); g.add(cw);
+  }
+
+  // Seat top aligns with table surface (1.612)
+  g.position.set(cx, 0.656, cz);
+  g.rotation.y = rotY;
+  scene.add(g);
+}
+
+// LEFT chair: left of table long edge, back facing left-ish, seat toward table
+makeChair(TX - 1.44,  TZ + 0.08,  Math.PI * 0.53);
+// RIGHT chair: right of table long edge
+makeChair(TX + 1.44,  TZ - 0.05, -Math.PI * 0.50);
+
+// ── FLOOR ACCESSORIES ─────────────────────────────────────────
+// UK power strip (left wall, floor level — visible in photo)
+bx(0.275,0.036,0.065, M(0xeeeae4,0.68), -3.10, 0.018, 1.20);
+bx(0.215,0.022,0.055, M(0x404038,0.62), -3.02, 0.029, 1.20);
+// Short cable stub
+bx(0.004,0.004,0.48, M(0x282820,0.82), -3.10, 0.006, 0.96);
+// ════════════════════════════════════════════════════════════════
+//  CAMERA & CONTROLS
+//  Match photo: slightly elevated, front-center, looking slightly down
+// ════════════════════════════════════════════════════════════════
+let cH = 0.0, cV = 0.22, cR = 5.8;
+// Target = center of scene
+const TGT = new THREE.Vector3(-0.10, 1.75, -2.15);
+// Camera limits — front only, small range
+const CH_MIN = -0.18, CH_MAX = 0.18;   // ±~10° horizontal
+const CV_MIN =  0.10, CV_MAX = 0.36;   // slight vertical tilt only
+const CR_MIN =  4.5,  CR_MAX = 7.5;
+
+let dragging = false, lastX = 0, lastY = 0;
+
+function updateCamera() {
+  camera.position.x = TGT.x + cR * Math.sin(cH) * Math.cos(cV);
+  camera.position.y = TGT.y + cR * Math.sin(cV);
+  camera.position.z = TGT.z + cR * Math.cos(cH) * Math.cos(cV);
+  camera.lookAt(TGT);
+}
+
+renderer.domElement.addEventListener('mousedown', e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+});
+renderer.domElement.addEventListener('touchstart', e => {
+  dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+}, {passive:true});
+window.addEventListener('mouseup', () => dragging = false);
+window.addEventListener('touchend', () => dragging = false);
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  cH -= (e.clientX - lastX) * 0.0028;
+  cV -= (e.clientY - lastY) * 0.0020;
+  cH = Math.max(CH_MIN, Math.min(CH_MAX, cH));
+  cV = Math.max(CV_MIN, Math.min(CV_MAX, cV));
+  lastX = e.clientX; lastY = e.clientY;
+});
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  cH -= (e.touches[0].clientX - lastX) * 0.0028;
+  cV -= (e.touches[0].clientY - lastY) * 0.0020;
+  cH = Math.max(CH_MIN, Math.min(CH_MAX, cH));
+  cV = Math.max(CV_MIN, Math.min(CV_MAX, cV));
+  lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+}, {passive:true});
+renderer.domElement.addEventListener('wheel', e => {
+  cR = Math.max(CR_MIN, Math.min(CR_MAX, cR + e.deltaY * 0.006));
+  e.preventDefault();
+}, {passive:false});
+
+// UI fade-in
+setTimeout(() => {
+  document.getElementById('title').classList.add('vis');
+  document.getElementById('sub').classList.add('vis');
+}, 1400);
+
+// ════════════════════════════════════════════════════════════════
+//  RENDER LOOP
+// ════════════════════════════════════════════════════════════════
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+  const t = frame * 0.01;
+
+  // No auto-orbit — stays front-facing
+  updateCamera();
+
+  // Neon flicker (subtle, not dramatic)
+  const fl = 1.1
+    + Math.sin(t * 8.2) * 0.12
+    + Math.sin(t * 27.5) * 0.06
+    + (Math.random() < 0.002 ? -0.5 : 0);
+  neonPt.intensity = Math.max(0.3, fl);
+  mNeon.emissiveIntensity = 1.6 + Math.sin(t * 10.5) * 0.22;
+  neonGlow.material.opacity = 0.038 + Math.sin(t * 8) * 0.012;
+
+  renderer.render(scene, camera);
+  drawDust(t);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  camera.aspect = W/H; camera.updateProjectionMatrix();
+  renderer.setSize(W, H);
+  dustC.width = W; dustC.height = H;
+});
+
+</script>
+</body>
+</html>

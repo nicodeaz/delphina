@@ -1,6 +1,6 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="min-h-screen bg-gradient-to-br from-nude via-white to-gray-50 py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -22,34 +22,34 @@
                 <div class="space-y-4">
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Service:</span>
-                        <span class="text-gray-900">{{ $appointment->service->name }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->service->name); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Date:</span>
-                        <span class="text-gray-900">{{ $appointment->date->format('l, F j, Y') }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->date->format('l, F j, Y')); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Time:</span>
-                        <span class="text-gray-900">{{ $appointment->time }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->time); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Duration:</span>
-                        <span class="text-gray-900">{{ $appointment->service->duration }} minutes</span>
+                        <span class="text-gray-900"><?php echo e($appointment->service->duration); ?> minutes</span>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Client:</span>
-                        <span class="text-gray-900">{{ $appointment->name }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->name); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Email:</span>
-                        <span class="text-gray-900">{{ $appointment->email }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->email); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Phone:</span>
-                        <span class="text-gray-900">{{ $appointment->phone }}</span>
+                        <span class="text-gray-900"><?php echo e($appointment->phone); ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-600">Location:</span>
@@ -108,10 +108,11 @@
             <p class="text-gray-600 mb-4">
                 Questions? Contact us at <a href="tel:+353123456789" class="text-olive hover:text-green-700 font-medium">+353 123 456 789</a>
             </p>
-            <a href="{{ route('home') }}" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-olive to-green-700 text-white rounded-full font-bold hover:shadow-xl transition-all">
+            <a href="<?php echo e(route('home')); ?>" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-olive to-green-700 text-white rounded-full font-bold hover:shadow-xl transition-all">
                 <i class="fas fa-home mr-2"></i> Back to Home
             </a>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\delphina\resources\views/emails/appointment-confirmation.blade.php ENDPATH**/ ?>

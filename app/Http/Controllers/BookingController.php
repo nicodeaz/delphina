@@ -6,9 +6,7 @@ use App\Models\Appointment;
 use App\Models\AvailableDate;
 use App\Models\Payment;
 use App\Models\Service;
-use App\Services\GoogleCalendarService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -85,16 +83,6 @@ class BookingController extends Controller
             $appointment = Appointment::create($appointmentData);
             $appointments[] = $appointment;
             $totalAmount += $service->price;
-
-            // Try to sync with Google Calendar (only for the first appointment to avoid duplicates)
-            if (count($appointments) === 1) {
-                try {
-                    $calendarService = app(GoogleCalendarService::class);
-                    $calendarService->createEvent($appointment, $service);
-                } catch (\Exception $e) {
-                    \Log::warning('Could not sync appointment to calendar: ' . $e->getMessage());
-                }
-            }
         }
 
         if (empty($appointments)) {

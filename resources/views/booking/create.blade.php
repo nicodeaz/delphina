@@ -24,8 +24,8 @@
     <section class="px-4 pb-10 pt-16 sm:px-6 lg:px-8 lg:pt-20">
         <div class="mx-auto max-w-7xl">
             <div class="text-center">
-                <p class="text-sm font-semibold uppercase tracking-[0.35em] text-olive">Luxury booking experience</p>
-                <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal md:text-6xl">Reserve your next nail appointment in four simple steps</h1>
+                <p class="text-sm font-semibold uppercase tracking-[0.35em] text-olive">Delphina booking experience</p>
+                <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal md:text-6xl">Reserve your next nail appointment</h1>
                 <p class="mx-auto mt-5 max-w-3xl text-base text-gray-600 md:text-lg">Choose your treatment, explore available dates in a visual calendar, tap a time slot, and confirm your details in one polished flow.</p>
             </div>
 

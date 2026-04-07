@@ -71,11 +71,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
         <div class="text-center mb-16">
-            <div class="inline-flex items-center gap-3 mb-6">
-                <i class="fab fa-instagram text-3xl text-olive"></i>
-                <span class="text-2xl font-bold text-olive">@nailsbydelphina</span>
-                <i class="fab fa-instagram text-3xl text-olive"></i>
-            </div>
+           
             <h2 class="text-4xl md:text-5xl font-instagram font-bold text-brand-charcoal mb-6">
                 Follow My <span class="bg-gradient-to-r from-olive to-green-700 bg-clip-text text-transparent">Journey</span>
             </h2>

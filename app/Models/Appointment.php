@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class Appointment extends Model
 {
-    protected $fillable = ['user_id', 'service_id', 'date', 'time', 'status', 'name', 'email', 'phone', 'google_event_id', 'google_client_event_id', 'preferred_contact', 'notes', 'group_id'];
+    protected $fillable = ['user_id', 'service_id', 'date', 'time', 'status', 'name', 'email', 'phone', 'preferred_contact', 'notes', 'group_id'];
     protected $casts = [
         'date' => 'date',
     ];
@@ -32,7 +32,7 @@ class Appointment extends Model
     // Relationships
     public function user()
     {
-        return $this->belongsTo(User::class)->nullable();
+        return $this->belongsTo(User::class);
     }
 
     public function service()
