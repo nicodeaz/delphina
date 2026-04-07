@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AvailableDateController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $availableDates = AvailableDate::orderBy('date', 'desc')->get();
@@ -30,7 +25,7 @@ class AvailableDateController extends Controller
             'date' => 'required|date|after:today',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'slot_duration' => 'required|integer|min:15|max:240',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -39,10 +34,15 @@ class AvailableDateController extends Controller
                 ->withInput();
         }
 
-        AvailableDate::create($request->all());
+        AvailableDate::create($request->only([
+            'date',
+            'start_time',
+            'end_time',
+            'notes',
+        ]));
 
         return redirect()->route('admin.available-dates.index')
-            ->with('success', 'Fecha disponible creada exitosamente.');
+            ->with('success', 'Available date created successfully.');
     }
 
     public function edit(AvailableDate $availableDate)
@@ -56,7 +56,7 @@ class AvailableDateController extends Controller
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'slot_duration' => 'required|integer|min:15|max:240',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -65,10 +65,15 @@ class AvailableDateController extends Controller
                 ->withInput();
         }
 
-        $availableDate->update($request->all());
+        $availableDate->update($request->only([
+            'date',
+            'start_time',
+            'end_time',
+            'notes',
+        ]));
 
         return redirect()->route('admin.available-dates.index')
-            ->with('success', 'Fecha disponible actualizada exitosamente.');
+            ->with('success', 'Available date updated successfully.');
     }
 
     public function destroy(AvailableDate $availableDate)
@@ -76,6 +81,6 @@ class AvailableDateController extends Controller
         $availableDate->delete();
 
         return redirect()->route('admin.available-dates.index')
-            ->with('success', 'Fecha disponible eliminada exitosamente.');
+            ->with('success', 'Available date deleted successfully.');
     }
 }

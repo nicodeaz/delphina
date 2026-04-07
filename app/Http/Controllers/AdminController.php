@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Payment;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,18 +18,67 @@ class AdminController extends Controller
         $pendingAppointments = Appointment::pending()->count();
         $approvedAppointments = Appointment::approved()->count();
         $totalRevenue = Payment::paid()->sum('amount');
-        
+
         $recentAppointments = Appointment::with('user', 'service', 'payment')
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
+
+        $services = Service::orderBy('name')->get();
+
+        // Monthly appointments data for chart (SQLite-safe)
+        $monthlyAppointmentsRaw = Appointment::selectRaw("strftime('%m', created_at) as month, COUNT(*) as count")
+            ->whereRaw("strftime('%Y', created_at) = ?", [date('Y')])
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
+
+        $monthlyAppointments = array_fill(1, 12, 0);
+        foreach ($monthlyAppointmentsRaw as $month => $count) {
+            $monthlyAppointments[(int) $month] = $count;
+        }
+
+        // Monthly revenue data for chart (SQLite-safe)
+        $monthlyRevenueRaw = Payment::paid()
+            ->selectRaw("strftime('%m', created_at) as month, SUM(amount) as total")
+            ->whereRaw("strftime('%Y', created_at) = ?", [date('Y')])
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        $monthlyRevenue = array_fill(1, 12, 0);
+        foreach ($monthlyRevenueRaw as $month => $total) {
+            $monthlyRevenue[(int) $month] = $total;
+        }
+
+        // Popular services data
+        $popularServices = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
+            ->selectRaw('services.name, COUNT(*) as count')
+            ->groupBy('services.name')
+            ->orderBy('count', 'desc')
+            ->take(5)
+            ->pluck('count', 'name')
+            ->toArray();
+
+        // Appointments by status for pie chart
+        $appointmentsByStatus = Appointment::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
         return view('admin.dashboard', compact(
             'totalAppointments',
             'pendingAppointments',
             'approvedAppointments',
             'totalRevenue',
-            'recentAppointments'
+            'recentAppointments',
+            'services',
+            'monthlyAppointments',
+            'monthlyRevenue',
+            'popularServices',
+            'appointmentsByStatus'
         ))->with('appointments', $recentAppointments);
     }
 

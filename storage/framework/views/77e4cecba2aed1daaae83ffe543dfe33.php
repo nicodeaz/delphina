@@ -13,6 +13,7 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -109,17 +110,11 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="<?php echo e(route('home')); ?>" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Home</a>
-                    <a href="<?php echo e(route('home')); ?>#services" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Services</a>
-                    <a href="<?php echo e(route('booking.create')); ?>" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Book</a>
-                    <a href="<?php echo e(route('home')); ?>#portfolio" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Portfolio</a>
-                    <a href="<?php echo e(route('policies')); ?>" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Policies</a>
+                    <a href="<?php echo e(route('booking.create')); ?>" class="px-4 py-2 text-gray-700 hover:text-instagram-pink transition-colors font-medium">Booking
+                         </a>
 
                     <?php if(auth()->guard()->check()): ?>
-                        <?php if(auth()->user()->isAdmin()): ?>
-                            <a href="<?php echo e(route('admin.dashboard')); ?>" class="px-4 py-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors">
-                                <i class="fas fa-crown"></i> Admin
-                            </a>
-                        <?php endif; ?>
+                        
 
                         <div class="relative group">
                             <button class="px-4 py-2 flex items-center space-x-2 text-gray-700 hover:text-rose transition-colors">
@@ -131,11 +126,20 @@
 
                             <div class="hidden group-hover:block absolute right-0 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
                                 <?php if(auth()->user()->isAdmin()): ?>
+                                <a href="<?php echo e(route('admin.dashboard')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                        Dashboard
+                                    </a>
+                                    <a href="<?php echo e(route('admin.services.index')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                         Services
+                                    </a>
+                                    <a href="<?php echo e(route('admin.available-dates.index')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
+                                      Available Dates
+                                    </a>
                                     <a href="<?php echo e(route('admin.appointments.index')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
-                                        <i class="fas fa-calendar-alt mr-2"></i> Appointments
+                                     Appointments
                                     </a>
                                     <a href="<?php echo e(route('admin.payments.index')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-nude transition-colors">
-                                        <i class="fas fa-credit-card mr-2"></i> Payments
+                                         Payments
                                     </a>
                                 <?php endif; ?>
                                 <hr class="my-2">
@@ -162,8 +166,8 @@
             <div id="mobile-menu" class="hidden md:hidden pb-6 border-t border-gray-200">
                 <div class="flex flex-col space-y-3 mt-4">
                     <a href="<?php echo e(route('home')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Home</a>
-                    <a href="<?php echo e(route('home')); ?>#servicios" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Services</a>
-                    <a href="<?php echo e(route('book')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Book</a>
+                    <a href="<?php echo e(route('home')); ?>#services" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Services</a>
+                    <a href="<?php echo e(route('booking.create')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Book</a>
                     <a href="<?php echo e(route('policies')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Policies</a>
 
                     <?php if(auth()->guard()->check()): ?>
@@ -171,8 +175,27 @@
                             <a href="<?php echo e(route('admin.dashboard')); ?>" class="px-4 py-2 text-orange-600 font-semibold hover:bg-gray-50 rounded transition-colors">Admin</a>
                         <?php endif; ?>
                         <?php if(auth()->user()->isAdmin()): ?>
-                            <a href="<?php echo e(route('admin.appointments.index')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Appointments</a>
-                            <a href="<?php echo e(route('admin.payments.index')); ?>" class="px-4 py-2 text-gray-700 hover:text-olive hover:bg-gray-50 rounded transition-colors">Payments</a>
+                        <a href="<?php echo e(route('admin.dashboard')); ?>" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        Dashboard
+                    </a>
+                    <a href="<?php echo e(route('admin.services.index')); ?>" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-concierge-bell mr-2"></i>
+                        Services
+                    </a>
+                    <a href="<?php echo e(route('admin.available-dates.index')); ?>" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        Available Dates
+                    </a>
+                    <a href="<?php echo e(route('admin.appointments.index')); ?>" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        Appointments
+                    </a>
+                    <a href="<?php echo e(route('admin.payments.index')); ?>" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Payments
+                    </a>
+                    
                         <?php endif; ?>
                         <form method="POST" action="<?php echo e(route('admin.logout')); ?>" class="w-full">
                             <?php echo csrf_field(); ?>
@@ -229,8 +252,8 @@
                     <h4 class="text-white font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
                         <li><a href="<?php echo e(route('home')); ?>" class="text-gray-400 hover:text-rose transition-colors">Home</a></li>
-                        <li><a href="<?php echo e(route('appointments.index')); ?>" class="text-gray-400 hover:text-rose transition-colors">Book Appointment</a></li>
-                        <li><a href="#servicios" class="text-gray-400 hover:text-rose transition-colors">Services</a></li>
+                        <li><a href="<?php echo e(route('booking.create')); ?>" class="text-gray-400 hover:text-rose transition-colors">Booking</a></li>
+                        <li><a href="<?php echo e(route('home')); ?>#services" class="text-gray-400 hover:text-rose transition-colors">Services</a></li>
                     </ul>
                 </div>
 
@@ -254,11 +277,11 @@
                         </li>
                         <li class="flex items-start space-x-2">
                             <i class="fas fa-envelope text-rose mt-1"></i>
-                            <a href="mailto:info@nailartstudio.ie" class="hover:text-rose transition-colors">info@nailartstudio.ie</a>
+                            <a href="mailto:info@delphina.ie" class="hover:text-rose transition-colors">info@delphina.ie</a>
                         </li>
                         <li class="flex items-start space-x-2">
                             <i class="fas fa-map-pin text-rose mt-1"></i>
-                            <span>Main Street 123, Dublin</span>
+                            <span>The Square, Tallaght, Dublin</span>
                         </li>
                     </ul>
                 </div>
@@ -269,8 +292,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <p class="text-gray-400 text-sm">&copy; <?php echo e(date('Y')); ?> Nail Art Studio. All rights reserved.</p>
                 <ul class="flex space-x-6 text-gray-400 text-sm mt-4 md:mt-0">
-                    <li><a href="#" class="hover:text-rose transition-colors">Privacy Policy</a></li>
-                    <li><a href="#" class="hover:text-rose transition-colors">Terms & Conditions</a></li>
+                    <li><a href="<?php echo e(route('policies')); ?>" class="hover:text-rose transition-colors">Privacy Policy</a></li>
                     <li><a href="<?php echo e(route('admin.login')); ?>" class="hover:text-rose transition-colors font-medium">Admin</a></li>
                 </ul>
             </div>

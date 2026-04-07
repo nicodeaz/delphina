@@ -14,14 +14,19 @@ class BookingController extends Controller
 {
     public function create()
     {
-        $services = Service::all();
-        return view('booking.create', compact('services'));
-    }
+        Service::firstOrCreate(
+            ['name' => 'Trial Consultation'],
+            [
+                'description' => 'Short consultation to discuss your style, nail health, and service plan.',
+                'price' => 0,
+                'duration' => 30,
+            ]
+        );
 
-    public function index()
-    {
         $services = Service::all();
-        return view('booking.index', compact('services'));
+        $availableDates = AvailableDate::nextAvailableDates(90);
+
+        return view('booking.create', compact('services', 'availableDates'));
     }
 
     public function store(Request $request)
@@ -68,7 +73,7 @@ class BookingController extends Controller
                 'service_id' => $service->id,
                 'date' => $request->appointment_date,
                 'time' => $request->appointment_time,
-                'status' => 'confirmed', // AUTO-CONFIRMED as per user requirement
+                'status' => 'pending',
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
@@ -114,7 +119,7 @@ class BookingController extends Controller
     private function isTimeSlotAvailable($date, $time, $servicesData)
     {
         // Check if the date/time is within available periods
-        $dateConfig = AvailableDate::where('date', $date)
+        $dateConfig = AvailableDate::whereDate('date', $date)
             ->where('is_active', true)
             ->get();
 
@@ -153,8 +158,8 @@ class BookingController extends Controller
         $startTime = strtotime($time);
         $endTime = $startTime + $totalDuration * 60;
 
-        $conflicting = Appointment::where('date', $date)
-            ->whereIn('status', ['confirmed'])
+        $conflicting = Appointment::whereDate('date', $date)
+            ->whereIn('status', ['pending', 'approved', 'confirmed', 'completed'])
             ->get()
             ->filter(function ($appointment) use ($startTime, $endTime) {
                 $appStart = strtotime($appointment->time);
@@ -163,6 +168,47 @@ class BookingController extends Controller
             });
 
         return $conflicting->isEmpty();
+    }
+
+    public function getAvailableSlots(Request $request)
+    {
+        $date = $request->query('date');
+        $totalDuration = (int) $request->query('duration', 60); // Default 60 minutes
+
+        if (!$date) {
+            return response()->json(['error' => 'Date is required'], 400);
+        }
+
+        try {
+            $slots = AvailableDate::slotsForDate($date, $totalDuration);
+
+            $appointments = Appointment::with('service')
+                ->whereDate('date', $date)
+                ->whereIn('status', ['pending', 'approved', 'confirmed', 'completed'])
+                ->get();
+
+            return response()->json([
+                'slots' => array_map(function ($slot) use ($appointments, $totalDuration) {
+                    $slotStart = strtotime($slot['time']);
+                    $slotEnd = $slotStart + ($totalDuration * 60);
+
+                    $available = $appointments->every(function ($appointment) use ($slotStart, $slotEnd) {
+                        $appointmentStart = strtotime($appointment->time);
+                        $appointmentEnd = $appointmentStart + (($appointment->service->duration ?? 0) * 60);
+
+                        return !($slotStart < $appointmentEnd && $slotEnd > $appointmentStart);
+                    });
+
+                    return [
+                        'time' => $slot['time'],
+                        'available' => $available,
+                    ];
+                }, $slots)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error getting available slots: ' . $e->getMessage());
+            return response()->json(['error' => 'Unable to load available slots'], 500);
+        }
     }
 }
 

@@ -9,6 +9,7 @@
             <p class="text-xl text-gray-600">Manage your bookings and services</p>
         </div>
 
+
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-xl">
@@ -60,6 +61,33 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Monthly Appointments Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Monthly Appointments</h3>
+                <canvas id="monthlyAppointmentsChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Monthly Revenue Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Monthly Revenue</h3>
+                <canvas id="monthlyRevenueChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Popular Services Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Popular Services</h3>
+                <canvas id="popularServicesChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Appointments Status Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Appointments by Status</h3>
+                <canvas id="appointmentsStatusChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
         <!-- Appointments Management -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -96,15 +124,19 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="appointmentsTable">
                         @foreach($appointments as $appointment)
+                        @php
+                            $clientName = $appointment->user->name ?? $appointment->name ?? 'Guest Client';
+                            $clientEmail = $appointment->user->email ?? $appointment->email ?? 'No email provided';
+                        @endphp
                         <tr class="appointment-row" data-status="{{ $appointment->status }}" data-date="{{ $appointment->date->format('Y-m-d') }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 bg-olive-100 rounded-full flex items-center justify-center">
-                                        <span class="text-sm font-medium text-olive-700">{{ substr($appointment->user->name, 0, 1) }}</span>
+                                        <span class="text-sm font-medium text-olive-700">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($clientName, 0, 1)) }}</span>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $appointment->user->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $appointment->user->email }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $clientName }}</div>
+                                        <div class="text-sm text-gray-500">{{ $clientEmail }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -144,9 +176,9 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($appointment->payment)
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        @if($appointment->payment->status == 'completed') bg-green-100 text-green-800
+                                        @if($appointment->payment->status == 'paid') bg-green-100 text-green-800
                                         @else bg-gray-100 text-gray-800 @endif">
-                                        {{ $appointment->payment->status == 'completed' ? 'Paid' : 'Pending' }}
+                                        {{ $appointment->payment->status == 'paid' ? 'Paid' : 'Pending' }}
                                     </span>
                                 @else
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -313,6 +345,134 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 row.style.display = show ? '' : 'none';
             });
+        });
+    });
+
+    // Initialize Charts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monthly Appointments Chart
+        const monthlyAppointmentsCtx = document.getElementById('monthlyAppointmentsChart').getContext('2d');
+        new Chart(monthlyAppointmentsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Appointments',
+                    data: @json(array_values($monthlyAppointments)),
+                    borderColor: '#8B9A7C',
+                    backgroundColor: 'rgba(139, 154, 124, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Monthly Revenue Chart
+        const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        new Chart(monthlyRevenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue (€)',
+                    data: @json(array_values($monthlyRevenue)),
+                    backgroundColor: '#8B9A7C',
+                    borderColor: '#6B7B5A',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '€' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Popular Services Chart
+        const popularServicesCtx = document.getElementById('popularServicesChart').getContext('2d');
+        new Chart(popularServicesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json(array_keys($popularServices)),
+                datasets: [{
+                    data: @json(array_values($popularServices)),
+                    backgroundColor: [
+                        '#8B9A7C',
+                        '#A8B894',
+                        '#C5D4A7',
+                        '#E2E8D1',
+                        '#F5F7F0'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Appointments Status Chart
+        const appointmentsStatusCtx = document.getElementById('appointmentsStatusChart').getContext('2d');
+        new Chart(appointmentsStatusCtx, {
+            type: 'pie',
+            data: {
+                labels: @json(array_keys($appointmentsByStatus)),
+                datasets: [{
+                    data: @json(array_values($appointmentsByStatus)),
+                    backgroundColor: [
+                        '#8B9A7C', // approved
+                        '#F59E0B', // pending
+                        '#EF4444', // rejected
+                        '#6B7280', // cancelled
+                        '#3B82F6'  // other
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
         });
     });
 });

@@ -28,7 +28,7 @@ class AvailableDate extends Model
         // Convert $date to ensure it's a string in YYYY-MM-DD format
         $dateStr = is_object($date) ? $date->toDateString() : (string)$date;
         
-        $available = self::where('date', $dateStr)
+        $available = self::whereDate('date', $dateStr)
             ->where('is_active', true)
             ->orderBy('start_time')
             ->get();
@@ -42,16 +42,20 @@ class AvailableDate extends Model
         foreach ($available as $period) {
             $startTime = \DateTime::createFromFormat('H:i', $period->start_time);
             $endTime = \DateTime::createFromFormat('H:i', $period->end_time);
+            $intervalMinutes = 30;
             
             $current = $startTime;
             $serviceEnd = clone $current;
             $serviceEnd->add(new \DateInterval('PT' . $serviceDuration . 'M'));
             
             while ($serviceEnd <= $endTime) {
-                $slots[] = $current->format('H:i');
+                $slots[] = [
+                    'time' => $current->format('H:i'),
+                    'available' => true,
+                ];
                 
-                // Move to next 30-minute slot
-                $current->add(new \DateInterval('PT30M'));
+                // Move to next slot
+                $current->add(new \DateInterval('PT' . $intervalMinutes . 'M'));
                 $serviceEnd = clone $current;
                 $serviceEnd->add(new \DateInterval('PT' . $serviceDuration . 'M'));
             }
@@ -70,7 +74,7 @@ class AvailableDate extends Model
 
         for ($i = 1; $i <= $days; $i++) {
             $date = $today->copy()->addDays($i);
-            $hasSlots = self::where('date', $date->toDateString())
+            $hasSlots = self::whereDate('date', $date->toDateString())
                 ->where('is_active', true)
                 ->exists();
             
