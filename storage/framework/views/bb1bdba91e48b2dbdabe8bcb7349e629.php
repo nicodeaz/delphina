@@ -38,6 +38,16 @@
                     <span class="text-lg font-semibold text-gray-900">Total Price</span>
                     <span class="text-3xl font-bold text-rose">€<?php echo e(number_format($appointment->service->price, 2)); ?></span>
                 </div>
+                <div class="mt-3 border-t border-rose/20 pt-3 space-y-1 text-sm text-gray-700">
+                    <div class="flex justify-between">
+                        <span>Deposit due now</span>
+                        <span class="font-semibold">€<?php echo e(number_format($payment->amount, 2)); ?></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Remaining after service</span>
+                        <span class="font-semibold">€<?php echo e(number_format(max(0, $appointment->service->price - $payment->amount), 2)); ?></span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -55,7 +65,7 @@
                             <i class="fas fa-info-circle text-blue-600 mt-1"></i>
                             <div>
                                 <p class="font-semibold text-blue-900">Deposit Amount</p>
-                                <p class="text-sm text-blue-800">€<?php echo e(number_format($payment->amount, 2)); ?> to confirm your appointment</p>
+                                <p class="text-sm text-blue-800">€<?php echo e(number_format($payment->amount, 2)); ?> to confirm your appointment. The remaining balance is paid after the service.</p>
                             </div>
                         </div>
                     </div>
@@ -92,7 +102,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <!-- Submit -->
                     <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-rose to-pink-400 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-lg">
-                        <i class="fas fa-lock mr-2"></i> Confirm Payment
+                        <i class="fas fa-lock mr-2"></i> Pay Deposit
                     </button>
 
                     <p class="text-xs text-gray-500 text-center mt-4">

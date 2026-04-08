@@ -209,6 +209,33 @@
             background: #faf8ef;
             color: #2f2a09;
         }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+                line-height: 1.55;
+            }
+
+            .mobile-nav-link {
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+            }
+
+            .chatbot-launcher {
+                right: 0.9rem;
+                bottom: 0.9rem;
+                width: 3.25rem;
+                height: 3.25rem;
+            }
+
+            .chatbot-panel {
+                right: 0.5rem;
+                bottom: 4.9rem;
+                width: calc(100vw - 1rem);
+                max-height: 75vh;
+            }
+        }
     </style>
     
     <!-- Font Awesome -->
@@ -223,13 +250,12 @@
 </head>
 <body class="font-sans antialiased bg-white text-gray-800">
     <!-- Navigation -->
-    @unless(request()->routeIs('home'))
     <nav class="bg-white/95 backdrop-blur-md border-b border-olive-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex justify-between items-center h-16 md:h-20">
                 <!-- Logo -->
                 <a href="{{ route('home') }}" class="flex items-center group">
-                    <img src="{{ Vite::asset('resources/img/logo_green.png') }}" alt="Delfina logo" class="h-14 md:h-16 w-auto object-contain">
+                    <img src="{{ asset('img/logo_green.png') }}" alt="Delfina logo" class="h-11 md:h-16 w-auto object-contain">
                 </a>
 
                 <!-- Desktop Menu -->
@@ -330,7 +356,6 @@
             </div>
         </div>
     </nav>
-    @endunless
 
     <!-- Main Content -->
     <main class="min-h-[calc(100vh-140px)]">
@@ -356,7 +381,7 @@
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
                        
-                        <img src="{{ Vite::asset('resources/img/logo_green.png') }}" alt="Nail Art Logo" class="h-12 md:h-14 w-auto object-contain">
+                        <img src="{{ asset('img/logo.png') }}" alt="Nail Art Logo" class="h-12 md:h-14 w-auto object-contain">
                     </div>
                     <p class="text-[#5e5720] leading-relaxed">
                         Professional nail studio with unique designs and premium treatments. Your destination for perfect nails in Dublin.

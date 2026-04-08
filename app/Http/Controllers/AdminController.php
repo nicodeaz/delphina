@@ -17,7 +17,19 @@ class AdminController extends Controller
         $totalAppointments = Appointment::count();
         $pendingAppointments = Appointment::pending()->count();
         $approvedAppointments = Appointment::approved()->count();
-        $totalRevenue = Payment::paid()->sum('amount');
+        $totalRevenue = Appointment::query()
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('payments', 'payments.appointment_id', '=', 'appointments.id')
+            ->whereNotIn('appointments.status', ['cancelled', 'rejected'])
+            ->selectRaw("SUM(CASE WHEN appointments.status = 'completed' THEN COALESCE(services.price, 0) WHEN payments.status = 'paid' THEN COALESCE(payments.amount, 0) ELSE 0 END) as total")
+            ->value('total') ?? 0;
+
+        $totalServiceValue = Appointment::query()
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->whereNotIn('appointments.status', ['cancelled', 'rejected'])
+            ->sum('services.price');
+
+        $remainingBalance = max(0, (float) $totalServiceValue - (float) $totalRevenue);
 
         $recentAppointments = Appointment::with('user', 'service', 'payment')
             ->orderBy('created_at', 'desc')
@@ -40,9 +52,12 @@ class AdminController extends Controller
         }
 
         // Monthly revenue data for chart (SQLite-safe)
-        $monthlyRevenueRaw = Payment::paid()
-            ->selectRaw("strftime('%m', created_at) as month, SUM(amount) as total")
-            ->whereRaw("strftime('%Y', created_at) = ?", [date('Y')])
+        $monthlyRevenueRaw = Appointment::query()
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('payments', 'payments.appointment_id', '=', 'appointments.id')
+            ->whereNotIn('appointments.status', ['cancelled', 'rejected'])
+            ->whereRaw("strftime('%Y', appointments.created_at) = ?", [date('Y')])
+            ->selectRaw("strftime('%m', appointments.created_at) as month, SUM(CASE WHEN appointments.status = 'completed' THEN COALESCE(services.price, 0) WHEN payments.status = 'paid' THEN COALESCE(payments.amount, 0) ELSE 0 END) as total")
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month')
@@ -73,6 +88,7 @@ class AdminController extends Controller
             'pendingAppointments',
             'approvedAppointments',
             'totalRevenue',
+            'remainingBalance',
             'recentAppointments',
             'services',
             'monthlyAppointments',

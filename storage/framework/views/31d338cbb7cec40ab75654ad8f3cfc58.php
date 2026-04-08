@@ -26,7 +26,7 @@
             <div class="text-center">
                 <p class="text-sm font-semibold uppercase tracking-[0.35em] text-olive">Delphina booking experience</p>
                 <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal md:text-6xl">Reserve your next nail appointment</h1>
-                <p class="mx-auto mt-5 max-w-3xl text-base text-gray-600 md:text-lg">Choose your treatment, explore available dates in a visual calendar, tap a time slot, and confirm your details in one polished flow.</p>
+                <p class="mx-auto mt-5 max-w-3xl text-base text-gray-600 md:text-lg">Pick your date and time first, choose your services next, then confirm your details in one simple flow.</p>
             </div>
 
             <?php if($errors->any()): ?>
@@ -42,14 +42,13 @@
 
             <div class="mt-12 grid gap-8 xl:grid-cols-[minmax(0,1fr),360px]">
                 <div class="rounded-[2rem] bg-white p-5 shadow-xl ring-1 ring-stone-100 md:p-8">
-                    <div class="grid gap-3 border-b border-stone-100 pb-8 md:grid-cols-4">
+                    <div class="flex gap-3 overflow-x-auto border-b border-stone-100 pb-8 md:grid md:grid-cols-3 md:overflow-visible">
                         <?php $__currentLoopData = [
-                            1 => 'Service',
-                            2 => 'Date',
-                            3 => 'Time',
-                            4 => 'Details',
+                            1 => 'Date & Time',
+                            2 => 'Service',
+                            3 => 'Details',
                         ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <button type="button" class="js-step-indicator flex items-center gap-3 rounded-2xl border border-stone-200 px-4 py-4 text-left transition" data-step="<?php echo e($index); ?>">
+                            <button type="button" class="js-step-indicator min-w-[210px] md:min-w-0 flex items-center gap-3 rounded-2xl border border-stone-200 px-4 py-4 text-left transition" data-step="<?php echo e($index); ?>">
                                 <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-100 text-sm font-semibold text-gray-600"><?php echo e($index); ?></span>
                                 <div>
                                     <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Step <?php echo e($index); ?></p>
@@ -68,32 +67,11 @@
 
                         <div class="space-y-8">
                             <section class="js-step-panel" data-step-panel="1">
-                                <div class="mb-6">
-                                    <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 1</p>
-                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Select your services</h2>
-                                    <p class="mt-2 text-sm text-gray-500">Choose one or more treatments to combine into a single booking session. Trial consultation is available in the list.</p>
-                                </div>
-
-                                <?php echo $__env->make('partials.service-selector', [
-                                    'selectorId' => 'bookingServiceSelector',
-                                    'inputName' => 'service_selector',
-                                    'selectionMode' => 'multiple',
-                                    'selectedServiceIds' => $selectedServiceIds,
-                                ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-
-                                <div class="mt-8 flex justify-end">
-                                    <button type="button" class="js-next-step inline-flex items-center rounded-2xl bg-olive px-6 py-3 font-semibold text-white transition hover:bg-green-700" data-next-step="2">
-                                        Continue to date
-                                    </button>
-                                </div>
-                            </section>
-
-                            <section class="js-step-panel hidden" data-step-panel="2">
                                 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                                     <div>
-                                        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 2</p>
-                                        <h2 class="mt-2 text-2xl font-semibold text-gray-900">Pick your date</h2>
-                                        <p class="mt-2 text-sm text-gray-500">Browse a monthly calendar and select one of the available days.</p>
+                                        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 1</p>
+                                        <h2 class="mt-2 text-2xl font-semibold text-gray-900" tabindex="-1">Choose date & time</h2>
+                                        <p class="mt-2 text-sm text-gray-500">Pick your day and tap an available hour. Then continue to services.</p>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <button type="button" id="calendarPrevMonth" class="rounded-2xl border border-stone-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-olive hover:text-olive">Previous</button>
@@ -115,33 +93,43 @@
                                     <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
                                 </div>
 
-                                <div class="mt-8 flex items-center justify-between">
-                                    <button type="button" class="js-prev-step rounded-2xl border border-stone-200 px-6 py-3 font-semibold text-gray-700 transition hover:border-olive hover:text-olive" data-prev-step="1">Back</button>
-                                    <button type="button" class="js-next-step inline-flex items-center rounded-2xl bg-olive px-6 py-3 font-semibold text-white transition hover:bg-green-700" data-next-step="3">Continue to time</button>
+                                <div id="timeSlotSection" class="mt-6">
+                                    <div id="slotFeedback" class="mb-5 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-gray-500">Select a date to load available times.</div>
+                                    <div id="timeSlotGrid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+                                </div>
+
+                                <div class="mt-8 flex justify-end">
+                                    <button type="button" class="js-next-step inline-flex w-full sm:w-auto items-center justify-center rounded-2xl bg-olive px-6 py-3 font-semibold text-white transition hover:bg-green-700" data-next-step="2">
+                                        Continue to services
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section class="js-step-panel hidden" data-step-panel="2">
+                                <div class="mb-6">
+                                    <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 2</p>
+                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900" tabindex="-1">Select your services</h2>
+                                    <p class="mt-2 text-sm text-gray-500">Choose one or more treatments. We’ll keep your selected date and recheck time availability automatically.</p>
+                                </div>
+
+                                <?php echo $__env->make('partials.service-selector', [
+                                    'selectorId' => 'bookingServiceSelector',
+                                    'inputName' => 'service_selector',
+                                    'selectionMode' => 'multiple',
+                                    'selectedServiceIds' => $selectedServiceIds,
+                                ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+                                <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <button type="button" class="js-prev-step w-full sm:w-auto rounded-2xl border border-stone-200 px-6 py-3 font-semibold text-gray-700 transition hover:border-olive hover:text-olive" data-prev-step="1">Back</button>
+                                    <button type="button" class="js-next-step inline-flex w-full sm:w-auto items-center justify-center rounded-2xl bg-olive px-6 py-3 font-semibold text-white transition hover:bg-green-700" data-next-step="3">Continue to details</button>
                                 </div>
                             </section>
 
                             <section class="js-step-panel hidden" data-step-panel="3">
                                 <div class="mb-6">
                                     <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 3</p>
-                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Choose a time slot</h2>
-                                    <p class="mt-2 text-sm text-gray-500">Available times appear as soon as a valid date is selected.</p>
-                                </div>
-
-                                <div id="slotFeedback" class="mb-5 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-gray-500">Select a service and a date to load your available times.</div>
-                                <div id="timeSlotGrid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
-
-                                <div class="mt-8 flex items-center justify-between">
-                                    <button type="button" class="js-prev-step rounded-2xl border border-stone-200 px-6 py-3 font-semibold text-gray-700 transition hover:border-olive hover:text-olive" data-prev-step="2">Back</button>
-                                    <button type="button" class="js-next-step inline-flex items-center rounded-2xl bg-olive px-6 py-3 font-semibold text-white transition hover:bg-green-700" data-next-step="4">Continue to details</button>
-                                </div>
-                            </section>
-
-                            <section class="js-step-panel hidden" data-step-panel="4">
-                                <div class="mb-6">
-                                    <p class="text-sm font-semibold uppercase tracking-[0.25em] text-olive">Step 4</p>
-                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Your details and confirmation</h2>
-                                    <p class="mt-2 text-sm text-gray-500">Confirm your contact information and review the appointment before paying the deposit.</p>
+                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900" tabindex="-1">Your details and confirmation</h2>
+                                    <p class="mt-2 text-sm text-gray-500">Confirm your contact information and review the appointment before paying only the deposit online.</p>
                                 </div>
 
                                 <div class="mb-8 rounded-[2rem] bg-olive/5 p-6">
@@ -192,13 +180,13 @@
                                 <div class="mt-6 rounded-[2rem] border border-stone-200 bg-stone-50 p-6">
                                     <div class="flex items-start gap-3">
                                         <input type="checkbox" name="terms" id="terms" value="1" <?php echo e(old('terms') ? 'checked' : ''); ?> required class="mt-1 h-4 w-4 rounded border-stone-300 text-olive focus:ring-olive">
-                                        <label for="terms" class="text-sm text-gray-700">I agree to the <a href="<?php echo e(route('policies')); ?>" class="font-medium text-olive hover:underline">Terms & Conditions</a> and <a href="<?php echo e(route('policies')); ?>" class="font-medium text-olive hover:underline">Privacy Policy</a>. A €15 deposit is required to secure the appointment.</label>
+                                        <label for="terms" class="text-sm text-gray-700">I agree to the <a href="<?php echo e(route('policies')); ?>" class="font-medium text-olive hover:underline">Terms & Conditions</a> and <a href="<?php echo e(route('policies')); ?>" class="font-medium text-olive hover:underline">Privacy Policy</a>. A €15 deposit is required to secure the appointment; the remaining balance is paid after the service.</label>
                                     </div>
                                 </div>
 
-                                <div class="mt-8 flex items-center justify-between gap-4">
-                                    <button type="button" class="js-prev-step rounded-2xl border border-stone-200 px-6 py-3 font-semibold text-gray-700 transition hover:border-olive hover:text-olive" data-prev-step="3">Back</button>
-                                    <button type="submit" id="submitBookingButton" class="inline-flex items-center justify-center rounded-2xl bg-olive px-8 py-4 font-semibold text-white shadow-lg transition hover:bg-green-700 disabled:opacity-60">
+                                <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <button type="button" class="js-prev-step w-full sm:w-auto rounded-2xl border border-stone-200 px-6 py-3 font-semibold text-gray-700 transition hover:border-olive hover:text-olive" data-prev-step="2">Back</button>
+                                    <button type="submit" id="submitBookingButton" class="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl bg-olive px-8 py-4 font-semibold text-white shadow-lg transition hover:bg-green-700 disabled:opacity-60">
                                         <span id="btnText">Confirm booking</span>
                                         <svg id="btnSpinner" class="ml-3 hidden h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -234,7 +222,7 @@
                             <p id="summaryDateTime" class="mt-2 text-lg font-semibold text-gray-900">Choose a date and time</p>
                         </div>
                         <div class="rounded-3xl border border-dashed border-stone-200 px-5 py-4 text-sm text-gray-500">
-                            A €15 deposit will be requested after submission to secure your booking.
+                            You pay only the €15 deposit now. The remaining balance is paid after your service.
                         </div>
                     </div>
                 </aside>
@@ -263,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevMonthButton = document.getElementById('calendarPrevMonth');
     const nextMonthButton = document.getElementById('calendarNextMonth');
     const timeSlotGrid = document.getElementById('timeSlotGrid');
+    const timeSlotSection = document.getElementById('timeSlotSection');
     const slotFeedback = document.getElementById('slotFeedback');
     const submitButton = document.getElementById('submitBookingButton');
     const btnText = document.getElementById('btnText');
@@ -290,6 +279,12 @@ document.addEventListener('DOMContentLoaded', function () {
         time: appointmentTimeInput.value || null,
     };
 
+    function getTotalDuration() {
+        return state.services.length
+            ? state.services.reduce((sum, service) => sum + service.duration, 0)
+            : 30;
+    }
+
     function formatDisplayDate(dateString) {
         if (!dateString) return '—';
         const date = new Date(`${dateString}T00:00:00`);
@@ -308,6 +303,13 @@ document.addEventListener('DOMContentLoaded', function () {
             indicator.querySelector('span').classList.toggle('bg-stone-100', !active);
             indicator.querySelector('span').classList.toggle('text-gray-600', !active);
         });
+    }
+
+    function scrollToTimeSlots() {
+        if (!timeSlotSection) return;
+        setTimeout(() => {
+            timeSlotSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
     }
 
     function updateSummary() {
@@ -368,8 +370,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateSummary();
         if (state.date) {
-            state.time = null;
-            appointmentTimeInput.value = '';
             loadAvailableSlots(state.date);
         }
     }
@@ -408,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     renderCalendar();
                     updateSummary();
                     loadAvailableSlots(dateString);
+                    scrollToTimeSlots();
                 });
             }
             calendarGrid.appendChild(button);
@@ -423,8 +424,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderSlots(slots) {
         timeSlotGrid.innerHTML = '';
+        const selectedStillValid = slots.some((slot) => slot.time === state.time);
+        if (!selectedStillValid) {
+            if (slots.length) {
+                state.time = slots[0].time;
+                appointmentTimeInput.value = slots[0].time;
+            } else {
+                state.time = null;
+                appointmentTimeInput.value = '';
+            }
+        }
+
         if (!slots.length) {
             slotFeedback.textContent = 'No available times for this date. Please choose another day.';
+            updateSummary();
             return;
         }
 
@@ -442,16 +455,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             timeSlotGrid.appendChild(button);
         });
+
+        updateSummary();
     }
 
     function loadAvailableSlots(dateString) {
-        if (!state.services.length || !dateString) {
-            slotFeedback.textContent = 'Select a service and a date to load your available times.';
+        if (!dateString) {
+            slotFeedback.textContent = 'Select a date to load available times.';
             timeSlotGrid.innerHTML = '';
             return;
         }
 
-        const totalDuration = state.services.reduce((sum, service) => sum + service.duration, 0);
+        const totalDuration = getTotalDuration();
 
         slotFeedback.textContent = 'Loading available times...';
         timeSlotGrid.innerHTML = '';
@@ -465,13 +480,24 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(() => {
                 slotFeedback.textContent = 'Unable to load times right now. Please try again.';
                 timeSlotGrid.innerHTML = '';
+                state.time = null;
+                appointmentTimeInput.value = '';
+                updateSummary();
             });
     }
 
     function goToStep(step) {
-        if (step === 2 && !state.services.length) return;
-        if (step === 3 && (!state.services.length || !state.date)) return;
-        if (step === 4 && (!state.services.length || !state.date || !state.time)) return;
+        if (step === 2 && (!state.date || !state.time)) return;
+        if (step === 3 && (!state.date || !state.services.length)) return;
+
+        if (step === 3 && !state.time) {
+            slotFeedback.textContent = 'Please choose a valid time for the selected service(s).';
+            currentStep = 2;
+            updateStepUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         currentStep = step;
         updateStepUI();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -544,15 +570,13 @@ document.addEventListener('DOMContentLoaded', function () {
     renderCalendar();
     updateSummary();
 
-    if (state.services.length && state.date) {
+    if (state.date) {
         loadAvailableSlots(state.date);
     }
 
-    if (state.services.length && state.date && state.time) {
-        goToStep(4);
-    } else if (state.services.length && state.date) {
+    if (state.date && state.time && state.services.length) {
         goToStep(3);
-    } else if (state.services.length) {
+    } else if (state.date && state.time) {
         goToStep(2);
     }
 });

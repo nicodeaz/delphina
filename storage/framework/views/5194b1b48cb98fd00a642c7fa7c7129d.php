@@ -18,6 +18,12 @@
         filter: brightness(0) invert(1) drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
     }
 
+    .home-intro-badge {
+        background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0.12));
+        border: 1px solid rgba(255,255,255,0.35);
+        backdrop-filter: blur(6px);
+    }
+
     .home-hero-glow-one,
     .home-hero-glow-two {
         will-change: transform;
@@ -60,6 +66,18 @@
             transform: translate3d(14px, -18px, 0);
         }
     }
+
+    @media (max-width: 768px) {
+        .home-hero-text {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .home-hero-glow-one,
+        .home-hero-glow-two {
+            display: none;
+        }
+    }
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -67,7 +85,7 @@
 
 <!-- Hero Section -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#d8d2c6]">
-    <img src="<?php echo e(Vite::asset('resources/img/last.jpg')); ?>" alt="Studio background" class="home-hero-media absolute inset-0 h-full w-full" />
+    <img src="<?php echo e(asset('img/last.jpg')); ?>" alt="Studio background" class="home-hero-media absolute inset-0 h-full w-full" />
     <div class="absolute inset-0 bg-gradient-to-r from-black/15 via-black/24 to-black/50"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/12"></div>
     <div class="home-hero-grain absolute inset-0"></div>
@@ -76,11 +94,15 @@
 
     <!-- Content -->
     <div class="home-hero-text relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl">
-        <div class="mb-8 flex justify-center">
+        <div class="mb-8 flex flex-col items-center gap-5">
+            <span class="home-intro-badge inline-flex items-center rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/95">
+                Delphina Signature Studio
+            </span>
+            <img src="<?php echo e(asset('img/logo.png')); ?>" alt="Delphina logo" class="home-hero-logo-white h-24 md:h-28 lg:h-32 w-auto object-contain">
         </div>
 
         <!-- Main Heading -->
-        <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
             <span class="bg-gradient-to-r from-white via-nude to-white bg-clip-text text-transparent drop-shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
                 Perfect Nails
             </span>
@@ -95,25 +117,25 @@
         </p>
 
         <!-- Instagram-style CTA Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <a href="<?php echo e(route('booking.create')); ?>" class="px-8 py-4 bg-gradient-to-r from-olive to-green-700 text-white rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105 text-lg inline-flex items-center justify-center shadow-lg">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-12">
+            <a href="<?php echo e(route('booking.create')); ?>" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-olive to-green-700 text-white rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105 text-base sm:text-lg inline-flex items-center justify-center shadow-lg">
                 <i class="fas fa-sparkles mr-2"></i> Book Your Glow Up
             </a>
 
-            <a href="#portfolio" class="px-8 py-4 border-2 border-white/70 text-white rounded-full font-bold hover:bg-white hover:text-brand-charcoal transition-all text-lg inline-flex items-center justify-center backdrop-blur-sm">
+            <a href="#portfolio" class="w-full sm:w-auto px-8 py-4 border-2 border-white/70 text-white rounded-full font-bold hover:bg-white hover:text-brand-charcoal transition-all text-base sm:text-lg inline-flex items-center justify-center backdrop-blur-sm">
                 <i class="fab fa-instagram mr-2"></i> View My Work
             </a>
         </div>
 
         <!-- Social Proof -->
-        <div class="flex justify-center items-center space-x-8 text-sm text-white/85">
+        <div class="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-sm text-white/85">
             <div class="flex items-center space-x-1">
                 <i class="fab fa-instagram text-nude"></i>
                 <span>@nailsbydelphina</span>
             </div>
-            <div class="w-1 h-1 bg-white/60 rounded-full"></div>
+            <div class="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
             <div>500+ Happy Clients</div>
-            <div class="w-1 h-1 bg-white/60 rounded-full"></div>
+            <div class="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
             <div>8+ Years Experience</div>
         </div>
     </div>
@@ -139,43 +161,43 @@
         </div>
 
         <!-- Instagram Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
+        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 mb-12">
             <?php $__currentLoopData = $instagramPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
-                <!-- Image -->
-                <div class="aspect-square overflow-hidden">
-                    <img src="<?php echo e($post['image']); ?>"
-                         alt="Instagram Post" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                </div>
-
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <!-- Instagram-style overlay -->
-                    <div class="absolute top-3 right-3 flex space-x-1">
-                        <div class="bg-black/50 backdrop-blur-sm rounded-full p-2">
-                            <i class="far fa-heart text-white text-sm"></i>
-                        </div>
-                        <div class="bg-black/50 backdrop-blur-sm rounded-full p-2">
-                            <i class="far fa-comment text-white text-sm"></i>
+            <article class="overflow-hidden rounded-2xl border border-[#dbdbdb] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-[#efefef]">
+                    <div class="flex items-center gap-3">
+                        <img src="<?php echo e(asset('img/logo_green.png')); ?>" alt="nailsbydelphina" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#dbdbdb]">
+                        <div>
+                            <p class="text-sm font-semibold text-[#262626]">nailsbydelphina</p>
+                            <p class="text-[11px] text-[#8e8e8e]">Tallaght, Dublin</p>
                         </div>
                     </div>
+                    <i class="fas fa-ellipsis-h text-[#8e8e8e]"></i>
+                </div>
 
-                    <!-- Stats -->
-                    <div class="absolute bottom-0 left-0 right-0 p-4">
-                        <p class="text-white text-xs mt-2 line-clamp-2"><?php echo e($post['caption']); ?></p>
+                <a href="https://www.instagram.com/nailsbydelphina/" target="_blank" rel="noopener" class="block overflow-hidden bg-black">
+                    <img src="<?php echo e($post['image']); ?>" alt="Instagram Post" class="max-h-[520px] w-full object-contain mx-auto">
+                </a>
+
+                <div class="px-4 py-3">
+                    <div class="flex items-center justify-between text-[#262626]">
+                        <div class="flex items-center gap-4">
+                            <i class="far fa-heart text-xl"></i>
+                            <i class="far fa-comment text-xl"></i>
+                            <i class="far fa-paper-plane text-xl"></i>
+                        </div>
+                        <i class="far fa-bookmark text-xl"></i>
                     </div>
                 </div>
 
-                <!-- Hover effect border -->
-                <div class="absolute inset-0 border-2 border-transparent group-hover:border-white/50 rounded-2xl transition-all duration-300"></div>
-            </div>
+            </article>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
 
         <!-- Follow CTA -->
         <div class="text-center">
             <div class="bg-gradient-to-r from-olive via-green-700 to-olive p-1 rounded-2xl inline-block">
-                <a href="https://instagram.com/nailsbydelphina" target="_blank"
+                     <a href="https://www.instagram.com/nailsbydelphina/" target="_blank"
                    class="inline-flex items-center px-8 py-4 bg-white text-brand-charcoal rounded-xl font-bold hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg">
                     <i class="fab fa-instagram mr-3 text-olive"></i>
                     Follow @nailsbydelphina

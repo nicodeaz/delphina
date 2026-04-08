@@ -61,7 +61,15 @@ class AvailableDate extends Model
             }
         }
 
-        return $slots;
+        $uniqueSlots = [];
+        foreach ($slots as $slot) {
+            $timeKey = $slot['time'];
+            if (!isset($uniqueSlots[$timeKey])) {
+                $uniqueSlots[$timeKey] = $slot;
+            }
+        }
+
+        return array_values($uniqueSlots);
     }
 
     /**

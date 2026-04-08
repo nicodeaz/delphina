@@ -54,8 +54,9 @@
                         <span class="text-2xl">💰</span>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                        <p class="text-sm font-medium text-gray-600">Revenue (Recognized)</p>
                         <p class="text-2xl font-bold text-gray-900">€<?php echo e(number_format($totalRevenue, 2)); ?></p>
+                        <p class="text-xs text-gray-500">Outstanding balance: €<?php echo e(number_format($remainingBalance, 2)); ?></p>
                     </div>
                 </div>
             </div>
