@@ -1,37 +1,95 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    .home-hero-media {
+        animation: hero-pan-zoom 24s ease-in-out infinite alternate;
+        transform-origin: center center;
+        will-change: transform;
+        object-fit: cover;
+        object-position: center center;
+        filter: contrast(1.06) saturate(1.06) brightness(0.96);
+        image-rendering: -webkit-optimize-contrast;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    .home-hero-logo-white {
+        filter: brightness(0) invert(1) drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
+    }
+
+    .home-hero-glow-one,
+    .home-hero-glow-two {
+        will-change: transform;
+        animation: hero-float 10s ease-in-out infinite;
+    }
+
+    .home-hero-text {
+        text-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .home-hero-grain {
+        background-image: radial-gradient(rgba(255,255,255,0.12) 0.5px, transparent 0.5px);
+        background-size: 4px 4px;
+        mix-blend-mode: soft-light;
+        opacity: 0.12;
+    }
+
+    .home-hero-glow-two {
+        animation-duration: 14s;
+        animation-delay: 1.5s;
+    }
+
+    @keyframes hero-pan-zoom {
+        0% {
+            transform: scale(1.03) translate3d(0, 0, 0);
+        }
+        50% {
+            transform: scale(1.08) translate3d(-1.2%, -0.6%, 0);
+        }
+        100% {
+            transform: scale(1.05) translate3d(1%, 0.8%, 0);
+        }
+    }
+
+    @keyframes hero-float {
+        0%, 100% {
+            transform: translate3d(0, 0, 0);
+        }
+        50% {
+            transform: translate3d(14px, -18px, 0);
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 
 <!-- Hero Section -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-nude via-white to-olive/10">
-    <!-- Instagram-style background pattern -->
-    <div class="absolute inset-0 opacity-5">
-        <div class="absolute top-20 left-20 w-32 h-32 rounded-full bg-olive"></div>
-        <div class="absolute top-40 right-32 w-24 h-24 rounded-full bg-green-700"></div>
-        <div class="absolute bottom-32 left-1/4 w-20 h-20 rounded-full bg-olive"></div>
-        <div class="absolute bottom-20 right-20 w-16 h-16 rounded-full bg-nude"></div>
-    </div>
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#d8d2c6]">
+    <img src="{{ Vite::asset('resources/img/last.jpg') }}" alt="Studio background" class="home-hero-media absolute inset-0 h-full w-full" />
+    <div class="absolute inset-0 bg-gradient-to-r from-black/15 via-black/24 to-black/50"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/12"></div>
+    <div class="home-hero-grain absolute inset-0"></div>
+    <div class="home-hero-glow-one absolute -left-10 top-20 h-56 w-56 rounded-full bg-rose/20 blur-3xl"></div>
+    <div class="home-hero-glow-two absolute bottom-16 right-8 h-72 w-72 rounded-full bg-olive/20 blur-3xl"></div>
 
     <!-- Content -->
-    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl">
-        <!-- Logo -->
-        <div class=" flex justify-center">
-           
+    <div class="home-hero-text relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl">
+        <div class="mb-8 flex justify-center">
         </div>
 
-      
-
         <!-- Main Heading -->
-        <h1 class="text-5xl md:text-6xl lg:text-7xl font-instagram font-bold mb-6 leading-tight">
-            <span class="bg-gradient-to-r from-olive via-green-700 to-olive bg-clip-text text-transparent">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
+            <span class="bg-gradient-to-r from-white via-nude to-white bg-clip-text text-transparent drop-shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
                 Perfect Nails
             </span>
             <br class="hidden md:block">
-            <span class="text-brand-charcoal">Made Simple</span>
+            <span class="text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]">Made Simple</span>
         </h1>
 
         <!-- Subheading -->
-        <p class="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed font-instagram">
+        <p class="text-lg md:text-xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed font-sans drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
             Transform your nails with premium gel extensions, BIAB, soft gel overlays, and stunning nail art.
             Dublin's most trusted nail technician in Tallaght.
         </p>
@@ -42,27 +100,27 @@
                 <i class="fas fa-sparkles mr-2"></i> Book Your Glow Up
             </a>
 
-            <a href="#portfolio" class="px-8 py-4 border-2 border-brand-charcoal text-brand-charcoal rounded-full font-bold hover:bg-brand-charcoal hover:text-white transition-all text-lg inline-flex items-center justify-center">
+            <a href="#portfolio" class="px-8 py-4 border-2 border-white/70 text-white rounded-full font-bold hover:bg-white hover:text-brand-charcoal transition-all text-lg inline-flex items-center justify-center backdrop-blur-sm">
                 <i class="fab fa-instagram mr-2"></i> View My Work
             </a>
         </div>
 
         <!-- Social Proof -->
-        <div class="flex justify-center items-center space-x-8 text-sm text-gray-500">
+        <div class="flex justify-center items-center space-x-8 text-sm text-white/85">
             <div class="flex items-center space-x-1">
-                <i class="fab fa-instagram text-olive"></i>
+                <i class="fab fa-instagram text-nude"></i>
                 <span>@nailsbydelphina</span>
             </div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div class="w-1 h-1 bg-white/60 rounded-full"></div>
             <div>500+ Happy Clients</div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div class="w-1 h-1 bg-white/60 rounded-full"></div>
             <div>8+ Years Experience</div>
         </div>
     </div>
 
     <!-- Scroll indicator -->
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <i class="fas fa-chevron-down text-brand-charcoal text-2xl"></i>
+        <i class="fas fa-chevron-down text-white text-2xl drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"></i>
     </div>
 </section>
 
@@ -72,7 +130,7 @@
         <!-- Section Header -->
         <div class="text-center mb-16">
            
-            <h2 class="text-4xl md:text-5xl font-instagram font-bold text-brand-charcoal mb-6">
+            <h2 class="text-4xl md:text-5xl font-display font-bold text-brand-charcoal mb-6">
                 Follow My <span class="bg-gradient-to-r from-olive to-green-700 bg-clip-text text-transparent">Journey</span>
             </h2>
             <p class="text-lg text-gray-600 max-w-2xl mx-auto">

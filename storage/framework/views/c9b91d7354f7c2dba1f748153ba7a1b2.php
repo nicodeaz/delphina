@@ -155,26 +155,6 @@
                 </div>
             </div>
 
-            <!-- Contact Information -->
-            <div class="bg-gradient-to-r from-olive to-green-700 rounded-2xl p-8 text-white text-center">
-                <h2 class="text-3xl font-serif font-bold mb-4">Questions?</h2>
-                <p class="text-xl mb-6 text-white/90">
-                    If you have any questions about our policies or need to make changes to your booking, please don't hesitate to contact us.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="tel:+353123456789" class="inline-flex items-center px-6 py-3 bg-white text-olive rounded-full font-bold hover:shadow-xl transition-all">
-                        <i class="fas fa-phone mr-2"></i> Call Us
-                    </a>
-                    <a href="mailto:info@delfinailtechnician.ie" class="inline-flex items-center px-6 py-3 bg-white text-olive rounded-full font-bold hover:shadow-xl transition-all">
-                        <i class="fas fa-envelope mr-2"></i> Email Us
-                    </a>
-                </div>
-                <p class="mt-6 text-white/80">
-                    <strong>Delfi Nail Technician</strong><br>
-                    Dublin 24, Tallaght<br>
-                    Open: Monday-Saturday 9AM-7PM
-                </p>
-            </div>
         </div>
     </div>
 </div>

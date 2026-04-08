@@ -19,8 +19,8 @@
     $initialTime = old('appointment_time');
 ?>
 
-<?php $__env->startSection('content'); ?>
-<div class="min-h-screen bg-gradient-to-br from-beige-50 via-white to-olive-50">
+<?php $__env->startSection('content'); ?> 
+<div class="min-h-screen bg-gradient-to-br from-nude via-white to-gray-50">
     <section class="px-4 pb-10 pt-16 sm:px-6 lg:px-8 lg:pt-20">
         <div class="mx-auto max-w-7xl">
             <div class="text-center">
