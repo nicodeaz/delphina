@@ -578,6 +578,7 @@
                 <p class="text-[#5e5720] text-sm">&copy; {{ date('Y') }} Nails by Delphina · Site by Devnico</p>
                 <ul class="flex space-x-6 text-[#5e5720] text-sm mt-4 md:mt-0">
                     <li><a href="{{ route('policies') }}" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="{{ route('admin.login') }}" class="footer-link font-medium" rel="nofollow">Admin</a></li>
                 </ul>
             </div>
         </div>

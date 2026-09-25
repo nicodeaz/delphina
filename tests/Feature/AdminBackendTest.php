@@ -149,6 +149,11 @@ class AdminBackendTest extends TestCase
         $this->get(route('home'))->assertSee('<meta name="google-site-verification" content="abc123token">', false);
     }
 
+    public function test_footer_links_to_the_studio_login(): void
+    {
+        $this->get(route('home'))->assertSee('href="'.route('admin.login').'" class="footer-link font-medium" rel="nofollow">Admin</a>', false);
+    }
+
     public function test_login_page_has_no_admin_navigation_for_guests(): void
     {
         $this->get(route('admin.login'))->assertOk()->assertSee('Welcome back')->assertDontSee('View website');
