@@ -54,6 +54,6 @@ al cambio: `/etc/cloudflared/config.yml.bak-20260925-000506`. El DNS se creó co
 
 ## SEO después del lanzamiento
 
-- Google Search Console: agregar la propiedad y enviar `https://nailsbydelphina.okto.ie/sitemap.xml`.
+- Google Search Console: propiedad `https://nailsbydelphina.okto.ie/` verificada (etiqueta HTML vía `GOOGLE_SITE_VERIFICATION` en el `.env` del VPS — no borrarla) y `sitemap.xml` enviado el 2026-09-25.
 - Perfil de Empresa de Google (Maps): link a la web y a `/book`.
 - Bio de Instagram: `https://nailsbydelphina.okto.ie/?book=1` (abre la reserva directo).
