@@ -1,55 +1,43 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title', 'Admin Login - Nails by Delphina')
+@section('title', 'Log in')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-nude via-white to-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <!-- Header -->
-        <div class="text-center">
-            <h2 class="text-3xl font-serif font-bold text-gray-900">Admin Access</h2>
-            <p class="mt-2 text-sm text-gray-600">Sign in to manage your appointments</p>
+<div class="flex min-h-screen items-center justify-center px-4 py-12">
+    <div class="w-full max-w-sm">
+        <div class="mb-8 text-center">
+            <img src="{{ asset('img/logo_green.png') }}" alt="Nails by Delphina" class="mx-auto h-16 w-auto">
+            <p class="mt-4 text-xs font-semibold uppercase tracking-[0.3em] text-olive">Delphina Studio</p>
+            <h1 class="mt-2 text-2xl font-semibold text-gray-900">Welcome back</h1>
         </div>
 
-        <!-- Login Form -->
-        <div class="bg-white py-8 px-6 shadow-xl rounded-2xl">
-            <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-6">
-                @csrf
+        <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4 rounded-[1.75rem] bg-white p-6 shadow-xl ring-1 ring-stone-100" x-data="{ sending: false }" @submit="sending = true">
+            @csrf
 
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input id="email" name="email" type="email" autocomplete="email" required
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-olive focus:border-olive"
-                           value="{{ old('email') }}">
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label for="email" class="mb-1 block text-sm font-medium text-gray-700">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}"
+                       class="w-full rounded-2xl border border-stone-300 px-4 py-3 text-base focus:border-olive focus:outline-none focus:ring-2 focus:ring-olive/20">
+                @error('email')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-olive focus:border-olive">
-                    @error('password')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label for="password" class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required
+                       class="w-full rounded-2xl border border-stone-300 px-4 py-3 text-base focus:border-olive focus:outline-none focus:ring-2 focus:ring-olive/20">
+                @error('password')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <div>
-                    <button type="submit"
-                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-olive to-green-700 hover:from-green-700 hover:to-olive focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive transition-all duration-300">
-                        Sign In
-                    </button>
-                </div>
-            </form>
-        </div>
+            <button type="submit" :disabled="sending" class="w-full rounded-2xl bg-olive px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-green-700 disabled:opacity-60">
+                <span x-text="sending ? 'Logging in…' : 'Log in'">Log in</span>
+            </button>
+        </form>
 
-        <!-- Back to Site -->
-        <div class="text-center">
-            <a href="{{ route('home') }}" class="text-sm text-gray-600 hover:text-olive transition-colors">
-                ← Back to website
-            </a>
-        </div>
+        <a href="{{ route('home') }}" class="mt-6 block text-center text-sm text-gray-500 hover:text-olive">← Back to website</a>
     </div>
 </div>
 @endsection

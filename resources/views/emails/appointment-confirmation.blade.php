@@ -1,117 +1,53 @@
-@extends('layouts.app')
+@extends('emails.layout', [
+    'title' => 'Your appointment is confirmed',
+    'preheader' => 'See you on '.$appointment->date->format('l j F').' at '.substr($appointment->time, 0, 5).'.',
+])
 
-@section('content')
-<div class="min-h-screen bg-gradient-to-br from-nude via-white to-gray-50 py-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-16">
-            <h1 class="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-4">Appointment Confirmed!</h1>
-            <div class="flex justify-center mb-6">
-                <div class="h-1 w-24 bg-gradient-to-r from-olive to-green-700 rounded"></div>
-            </div>
-            <p class="text-xl text-gray-600 font-light">
-                Your appointment has been successfully booked.
-            </p>
-        </div>
+@php
+    $total = $appointments->sum(fn ($a) => (float) ($a->service->price ?? 0));
+    $duration = $appointments->sum(fn ($a) => (int) ($a->service->duration ?? 0));
+    $deposit = \App\Models\Payment::AMOUNT;
+    $firstName = \Illuminate\Support\Str::of($appointment->name)->before(' ');
+@endphp
 
-        <!-- Appointment Details -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-            <h2 class="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">Appointment Details</h2>
+@section('body')
+    <p style="margin:0 0 6px; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#554F13;">Booking confirmed</p>
+    <h1 style="margin:0 0 16px; font-size:24px; line-height:32px; color:#2F2A09;">See you soon, {{ $firstName }}!</h1>
+    <p style="margin:0 0 24px; font-size:15px; line-height:24px; color:#5E5720;">
+        Your €{{ number_format($deposit, 0) }} deposit has been received and your appointment is confirmed.
+    </p>
 
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="space-y-4">
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Service:</span>
-                        <span class="text-gray-900">{{ $appointment->service->name }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Date:</span>
-                        <span class="text-gray-900">{{ $appointment->date->format('l, F j, Y') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Time:</span>
-                        <span class="text-gray-900">{{ $appointment->time }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Duration:</span>
-                        <span class="text-gray-900">{{ $appointment->service->duration }} minutes</span>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Client:</span>
-                        <span class="text-gray-900">{{ $appointment->name }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Email:</span>
-                        <span class="text-gray-900">{{ $appointment->email }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Phone:</span>
-                        <span class="text-gray-900">{{ $appointment->phone }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-medium text-gray-600">Location:</span>
-                        <span class="text-gray-900">Dublin 24, Tallaght</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Confirmation Information -->
-        <div class="bg-gradient-to-r from-olive to-green-700 rounded-2xl p-8 text-white text-center">
-            <h2 class="text-2xl font-serif font-bold mb-4">✅ Booking Confirmed</h2>
-            <p class="text-lg mb-6 text-white/90">
-                Your appointment is recorded in our backend calendar and will be managed directly by our team.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <p class="text-sm text-white/80 mt-2">
-                    If you want, you can add the event manually to your personal calendar.
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#FAF8EF; border-radius:16px;">
+        <tr>
+            <td style="padding:18px 20px;">
+                <p style="margin:0 0 4px; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#8D8540;">When</p>
+                <p style="margin:0 0 16px; font-size:17px; font-weight:700; color:#2F2A09;">
+                    {{ $appointment->date->format('l j F Y') }} at {{ substr($appointment->time, 0, 5) }}
                 </p>
-            </div>
-        </div>
+                <p style="margin:0 0 4px; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#8D8540;">Services · {{ $duration }} min</p>
+                @foreach($appointments as $item)
+                    <p style="margin:0 0 2px; font-size:15px; color:#2F2A09;">{{ $item->service->name ?? 'Service' }}</p>
+                @endforeach
+            </td>
+        </tr>
+    </table>
 
-        <!-- What to Expect -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mt-8">
-            <h2 class="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">What to Expect</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px; font-size:14px; color:#5E5720;">
+        <tr><td style="padding:4px 0;">Total</td><td align="right" style="padding:4px 0;">€{{ number_format($total, 2) }}</td></tr>
+        <tr><td style="padding:4px 0;">Deposit paid</td><td align="right" style="padding:4px 0;">−€{{ number_format($deposit, 2) }}</td></tr>
+        <tr><td style="padding:8px 0 0; font-weight:700; color:#2F2A09; border-top:1px solid #F1EDD7;">To pay at the studio</td><td align="right" style="padding:8px 0 0; font-weight:700; color:#2F2A09; border-top:1px solid #F1EDD7;">€{{ number_format(max(0, $total - $deposit), 2) }}</td></tr>
+    </table>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-olive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-clock text-olive text-2xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2">Arrive 5-10 min early</h3>
-                    <p class="text-gray-600 text-sm">Please arrive a few minutes before your appointment time.</p>
-                </div>
+    <p style="margin:24px 0 0; font-size:14px; line-height:22px; color:#5E5720;">
+        Please arrive 5 minutes early. Need to change your appointment? You can reschedule free of charge with more than 24 hours' notice — just message Delfi on
+        <a href="https://wa.me/353899409670" style="color:#554F13; font-weight:600;">WhatsApp</a>.
+    </p>
 
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-olive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-mobile-alt text-olive text-2xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2">Keep your phone on</h3>
-                    <p class="text-gray-600 text-sm">We'll contact you if there are any changes to your appointment.</p>
-                </div>
-
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-olive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-heart text-olive text-2xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2">Relax and enjoy</h3>
-                    <p class="text-gray-600 text-sm">Come prepared for a relaxing and professional experience.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Information -->
-        <div class="text-center mt-12">
-            <p class="text-gray-600 mb-4">
-                Questions? Contact us at <a href="tel:+353123456789" class="text-olive hover:text-green-700 font-medium">+353 123 456 789</a>
-            </p>
-            <a href="{{ route('home') }}" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-olive to-green-700 text-white rounded-full font-bold hover:shadow-xl transition-all">
-                <i class="fas fa-home mr-2"></i> Back to Home
-            </a>
-        </div>
-    </div>
-</div>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:24px;">
+        <tr>
+            <td style="border-radius:14px; background-color:#554F13;">
+                <a href="{{ route('policies') }}" style="display:inline-block; padding:12px 22px; font-size:14px; font-weight:600; color:#ffffff; text-decoration:none;">Booking policy</a>
+            </td>
+        </tr>
+    </table>
 @endsection

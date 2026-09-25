@@ -5,86 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Nail Art Studio - Professional Nails in Dublin')</title>
-    <meta name="description" content="@yield('description', 'Professional nail studio with unique designs and premium treatments. Book your appointment online.')">
+    @php
+        $pageTitle = trim($__env->yieldContent('title', 'Nails by Delphina - Nail Technician in Tallaght, Dublin'));
+        $pageDescription = trim($__env->yieldContent('description', 'Personalised BIAB, gel extensions and detailed nail art from a private studio in Tallaght, Dublin. Book your appointment online.'));
+        $pageImage = trim($__env->yieldContent('og_image', asset('img/og-share.jpg')));
+        $canonicalUrl = url()->current();
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
+    <meta name="robots" content="{{ trim($__env->yieldContent('robots', 'index, follow')) }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    @if(config('services.google.site_verification'))
+        <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}">
+    @endif
+    <meta name="theme-color" content="#5e5720">
+
+    <!-- Favicons -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/favicon-16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('img/favicon-48.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nails by Delphina">
+    <meta property="og:locale" content="en_IE">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta property="og:image" content="{{ $pageImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Nails by Delphina - nail studio in Tallaght, Dublin">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    <meta name="twitter:image" content="{{ $pageImage }}">
+
+    <!-- Structured data (Local Business) -->
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "NailSalon",
+        "@@id": "{{ url('/') }}#business",
+        "name": "Nails by Delphina",
+        "description": "Personalised BIAB, gel nails, soft gel extensions and nail art in a private studio in Tallaght, Dublin 24.",
+        "image": "{{ asset('img/og-share.jpg') }}",
+        "logo": "{{ asset('img/logo_green.png') }}",
+        "areaServed": ["Tallaght", "Dublin 24", "South Dublin"],
+        "currenciesAccepted": "EUR",
+        "url": "{{ url('/') }}",
+        "telephone": "+353899409670",
+        "email": "d.mariamendonca@gmail.com",
+        "priceRange": "€€",
+        "address": {
+            "@@type": "PostalAddress",
+            "addressLocality": "Tallaght",
+            "addressRegion": "Dublin",
+            "addressCountry": "IE"
+        },
+        "sameAs": [
+            "https://www.instagram.com/nailsbydelphina/"
+        ],
+        "openingHoursSpecification": [
+            { "@@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "18:00" },
+            { "@@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday"], "opens": "10:00", "closes": "17:00" }
+        ]
+    }
+    </script>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        // Instagram-inspired color palette
-                        'instagram-pink': '#E4405F',
-                        'instagram-purple': '#8134AF',
-                        'instagram-blue': '#0095F6',
-                        'instagram-gradient-start': '#F56040',
-                        'instagram-gradient-middle': '#F77737',
-                        'instagram-gradient-end': '#FCAF45',
-                        // Brand colors
-                        'brand-pink': '#FF6B9D',
-                        'brand-purple': '#C77DFF',
-                        'brand-gold': '#FFD700',
-                        'brand-cream': '#FFF8DC',
-                        'brand-charcoal': '#36454F',
-                        'brand-green': '#554F13',
-                        'brand-green-deep': '#413B0E',
-                        'brand-green-soft': '#8D8540',
-                        // Neutral tones
-                        beige: {
-                            50: '#FBF7F1',
-                            100: '#F2EBDD',
-                        },
-                        nude: '#F5E6D3',
-                        rose: '#E8C4D4',
-                        olive: {
-                            DEFAULT: '#554F13',
-                            50: '#FAF8EF',
-                            100: '#F1EDD7',
-                            200: '#DDD6AA',
-                            300: '#C3BA73',
-                            400: '#9F9544',
-                            500: '#7B7125',
-                            600: '#554F13',
-                            700: '#413B0E',
-                            800: '#2F2A09',
-                        },
-                        green: {
-                            DEFAULT: '#554F13',
-                            50: '#FAF8EF',
-                            100: '#F1EDD7',
-                            200: '#DDD6AA',
-                            300: '#C3BA73',
-                            400: '#9F9544',
-                            500: '#7B7125',
-                            600: '#554F13',
-                            700: '#413B0E',
-                            800: '#2F2A09',
-                        },
-                    },
-                    fontFamily: {
-                        'serif': ['Ahsing', 'Poppins', 'serif'],
-                        'sans': ['Poppins', 'sans-serif'],
-                        'display': ['Ahsing', 'Poppins', 'serif'],
-                        'instagram': ['Ahsing', 'Poppins', 'serif'],
-                    },
-                    backgroundImage: {
-                        'instagram-gradient': 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
-                        'brand-gradient': 'linear-gradient(135deg, #554F13 0%, #7B7125 55%, #9F9544 100%)',
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
         @font-face {
             font-family: 'Ahsing';
             src: local('Ahsing');
@@ -148,6 +155,64 @@
             background: linear-gradient(90deg, var(--brand-green), var(--brand-green-soft));
         }
 
+        /* Transparent-on-load nav that solidifies on scroll (home page only) */
+        .site-nav {
+            transition: background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        .site-nav--solid {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom-color: var(--olive-100, #F1EDD7);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .site-nav--transparent {
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        .site-nav--transparent .site-nav-link {
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .site-nav--transparent .site-nav-link:hover,
+        .site-nav--transparent .site-nav-link.is-active {
+            color: #fff;
+        }
+
+        .site-nav--transparent .site-nav-link.is-active::after,
+        .site-nav--transparent .site-nav-link:hover::after {
+            background: #fff;
+        }
+
+        .site-nav--transparent .mobile-menu-btn i,
+        .site-nav--transparent .site-nav-account-btn {
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .site-nav--transparent.is-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom-color: var(--olive-100, #F1EDD7);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .site-nav--transparent.is-scrolled .site-nav-link,
+        .site-nav--transparent.is-scrolled .mobile-menu-btn i,
+        .site-nav--transparent.is-scrolled .site-nav-account-btn {
+            color: var(--brand-text);
+            text-shadow: none;
+        }
+
+        .site-nav--transparent.is-scrolled .site-nav-link.is-active::after,
+        .site-nav--transparent.is-scrolled .site-nav-link:hover::after {
+            background: linear-gradient(90deg, var(--brand-green), var(--brand-green-soft));
+        }
+
         .mobile-nav-link {
             padding: 0.8rem 1rem;
             border-radius: 1rem;
@@ -170,6 +235,118 @@
 
         .footer-link:hover {
             color: var(--brand-green-deep);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.65rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, var(--brand-green), var(--brand-green-soft));
+            box-shadow: 0 10px 24px rgba(85, 79, 19, 0.28);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(85, 79, 19, 0.34);
+            opacity: 0.95;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.65rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            color: #fff;
+            backdrop-filter: blur(4px);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .btn-outline:hover {
+            background: #fff;
+            color: var(--brand-charcoal, #36454F);
+        }
+
+        .admin-menu-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 1rem;
+            font-size: 0.92rem;
+            color: var(--brand-green-deep);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .admin-menu-link:hover {
+            background: rgba(85, 79, 19, 0.08);
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fcfbf6;
+            opacity: 1;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+
+        .page-loader.is-hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .page-loader-mark {
+            animation: loader-pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes loader-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.06);
+                opacity: 0.85;
+            }
+        }
+
+        .page-loader-track {
+            position: relative;
+            width: 220px;
+            height: 4px;
+            border-radius: 9999px;
+            background: rgba(94, 87, 32, 0.15);
+            overflow: hidden;
+        }
+
+        .page-loader-bar {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 0%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, var(--brand-green-soft, #7a7328), var(--brand-green, #5e5720));
+            transition: width 0.4s ease;
+        }
+
+        .page-loader-phrase {
+            min-height: 1.2em;
+            transition: opacity 0.25s ease;
         }
 
         .chatbot-launcher {
@@ -236,6 +413,21 @@
                 max-height: 75vh;
             }
         }
+        /* Room for the slide-up booking bar / admin tab bar on phones */
+        @media (max-width: 767px) {
+            body.has-bottom-bar footer {
+                padding-bottom: 7rem;
+            }
+
+            body.has-bottom-bar .chatbot-launcher {
+                bottom: 6.25rem;
+            }
+
+            body.has-bottom-bar .chatbot-panel {
+                bottom: 10.25rem;
+                max-height: 60vh;
+            }
+        }
     </style>
     
     <!-- Font Awesome -->
@@ -248,125 +440,78 @@
     
     @stack('styles')
 </head>
-<body class="font-sans antialiased bg-white text-gray-800">
-    <!-- Navigation -->
-    <nav class="bg-white/95 backdrop-blur-md border-b border-olive-100 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16 md:h-20">
-                <!-- Logo -->
-                <a href="{{ route('home') }}" class="flex items-center group">
-                    <img src="{{ asset('img/logo_green.png') }}" alt="Delfina logo" class="h-11 md:h-16 w-auto object-contain">
-                </a>
+@php
+    $showBookingSheet = ! request()->routeIs('admin.*', 'booking.create', 'book', 'payments.*');
+@endphp
+<body class="font-sans antialiased bg-white text-gray-800 {{ ($showBookingSheet || request()->routeIs('booking.create', 'book')) ? 'has-bottom-bar' : '' }}">
+    <div id="page-loader" class="page-loader" role="status" aria-live="polite">
+        <div class="text-center">
+            <div class="page-loader-mark mx-auto mb-5 flex h-16 w-16 items-center justify-center">
+                <img src="{{ asset('img/logo_green.png') }}" alt="" class="h-12 w-auto object-contain">
+            </div>
+            <div class="page-loader-track mx-auto">
+                <div id="pageLoaderBar" class="page-loader-bar"></div>
+            </div>
+            <p id="pageLoaderPhrase" class="page-loader-phrase mt-4 text-xs font-semibold uppercase tracking-[0.32em] text-brand-green-deep">Loading</p>
+        </div>
+    </div>
 
+    <!-- Navigation -->
+    <nav id="siteNav" class="site-nav {{ request()->routeIs('home') ? 'site-nav--transparent' : 'site-nav--solid' }} fixed inset-x-0 top-0 z-50 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-center items-center h-16 md:h-20">
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-1">
+                <div class="hidden md:flex items-center gap-1">
                     <a href="{{ route('home') }}" class="site-nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}">Home</a>
-                    <a href="{{ route('booking.create') }}" class="site-nav-link {{ request()->routeIs('booking.create') ? 'is-active' : '' }}">Booking</a>
+                    <a href="{{ route('booking.create') }}" class="site-nav-link {{ request()->routeIs('booking.create') ? 'is-active' : '' }}">Services</a>
                     <a href="{{ route('policies') }}" class="site-nav-link {{ request()->routeIs('policies') ? 'is-active' : '' }}">Policies</a>
 
-                    @auth
-                        
+                    <a href="{{ route('booking.create') }}" class="btn-primary ml-3">
+                        Book an appointment
+                    </a>
 
-                        <div class="relative group">
-                               <button class="px-4 py-2 flex items-center space-x-2 text-brand-green-deep hover:text-olive-600 transition-colors font-semibold">
-                                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=E8C4D4&color=fff"
-                                     alt="" class="w-8 h-8 rounded-full">
-                                <span class="font-medium">{{ auth()->user()->name }}</span>
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </button>
-
-                            <div class="hidden group-hover:block absolute right-0 w-52 bg-white rounded-2xl shadow-xl py-2 border border-olive-100">
-                                @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                        Dashboard
-                                    </a>
-                                    <a href="{{ route('admin.services.index') }}" class="block px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                         Services
-                                    </a>
-                                    <a href="{{ route('admin.available-dates.index') }}" class="block px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                      Available Dates
-                                    </a>
-                                    <a href="{{ route('admin.appointments.index') }}" class="block px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                     Appointments
-                                    </a>
-                                    <a href="{{ route('admin.payments.index') }}" class="block px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                         Payments
-                                    </a>
-                                @endif
-                                <hr class="my-2">
-                                <form method="POST" action="{{ route('admin.logout') }}" class="w-full">
-                                    @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-brand-green-deep font-semibold hover:bg-olive-50 transition-colors">
-                                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @else
-                        <!-- Admin-only system - no public login/register needed -->
-                    @endauth
+                    @if(auth()->user()?->isAdmin())
+                        <a href="{{ route('admin.agenda') }}" class="site-nav-account-btn ml-2 inline-flex items-center gap-2 rounded-full border border-olive/20 px-3 py-1.5 text-sm font-semibold text-olive transition hover:bg-olive hover:text-white">
+                            <i class="fas fa-calendar-days"></i> Studio
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 hover:bg-olive-50 rounded-lg transition-colors">
+                <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden p-2 hover:bg-olive-50 rounded-lg transition-colors">
                     <i class="fas fa-bars text-2xl text-gray-700"></i>
                 </button>
             </div>
 
             <!-- Mobile Menu -->
-            <div id="mobile-menu" class="hidden md:hidden pb-6 border-t border-olive-100">
-                <div class="flex flex-col space-y-3 mt-4">
+            <div id="mobile-menu" class="hidden md:hidden pb-6 border-t border-olive-100 bg-white/95 backdrop-blur-md rounded-b-2xl">
+                <div class="flex flex-col space-y-2 mt-4">
                     <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}">Home</a>
-                    <a href="{{ route('home') }}#services" class="mobile-nav-link">Services</a>
-                    <a href="{{ route('booking.create') }}" class="mobile-nav-link {{ request()->routeIs('booking.create') ? 'is-active' : '' }}">Book</a>
+                    <a href="{{ route('booking.create') }}" class="mobile-nav-link {{ request()->routeIs('booking.create') ? 'is-active' : '' }}">Services</a>
                     <a href="{{ route('policies') }}" class="mobile-nav-link {{ request()->routeIs('policies') ? 'is-active' : '' }}">Policies</a>
 
-                    @auth
-                        @if(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-tachometer-alt mr-2"></i>
-                        Dashboard
+                    <a href="{{ route('booking.create') }}" class="btn-primary mt-2 justify-center">
+                        <i class="fas fa-sparkles mr-2"></i> Book an appointment
                     </a>
-                    <a href="{{ route('admin.services.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-concierge-bell mr-2"></i>
-                        Services
-                    </a>
-                    <a href="{{ route('admin.available-dates.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        Available Dates
-                    </a>
-                    <a href="{{ route('admin.appointments.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-calendar-check mr-2"></i>
-                        Appointments
-                    </a>
-                    <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-olive to-green-700 hover:from-olive/90 hover:to-green-700/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500 transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-credit-card mr-2"></i>
-                        Payments
-                    </a>
-                    
-                        @endif
-                        <form method="POST" action="{{ route('admin.logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit" class="mobile-nav-link w-full text-left">Logout</button>
-                        </form>
-                    @else
-                        <!-- Admin-only system - no public login/register needed -->
-                    @endauth
+
+                    @if(auth()->user()?->isAdmin())
+                        <a href="{{ route('admin.agenda') }}" class="mobile-nav-link"><i class="fas fa-calendar-days mr-2"></i> Studio admin</a>
+                    @endif
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="min-h-[calc(100vh-140px)]">
+    <main class="min-h-[calc(100vh-140px)] {{ request()->routeIs('home') ? '' : 'pt-16 md:pt-20' }}">
         @if(session('success'))
             <script>
-                toastr.success("{{ session('success') }}", "Success!");
+                toastr.success(@json(session('success')), "Success!");
             </script>
         @endif
         @if(session('error'))
             <script>
-                toastr.error("{{ session('error') }}", "Error!");
+                toastr.error(@json(session('error')), "Error!");
             </script>
         @endif
         
@@ -379,18 +524,12 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <!-- About -->
                 <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                       
-                        <img src="{{ asset('img/logo.png') }}" alt="Nail Art Logo" class="h-12 md:h-14 w-auto object-contain">
+                    <div class="mb-6 inline-flex items-center">
+                        <img src="{{ asset('img/logo_green.png') }}" alt="Nails by Delphina" class="h-20 w-auto object-contain md:h-24">
                     </div>
-                    <p class="text-[#5e5720] leading-relaxed">
-                        Professional nail studio with unique designs and premium treatments. Your destination for perfect nails in Dublin.
-                    </p>    
-                    <div class="flex space-x-4 mt-6">
-                        <a href="#" class="text-[#5e5720] hover:text-olive-700 transition-colors"><i class="fab fa-instagram text-lg"></i></a>
-                        <a href="#" class="text-[#5e5720] hover:text-olive-700 transition-colors"><i class="fab fa-facebook text-lg"></i></a>
-                        <a href="#" class="text-[#5e5720] hover:text-olive-700 transition-colors"><i class="fab fa-tiktok text-lg"></i></a>
-                    </div>
+                    <p class="max-w-xs text-[#5e5720] leading-relaxed">
+                        Personalised BIAB, gel extensions and detailed nail art from a private studio in Tallaght.
+                    </p>
                 </div>
 
                 <!-- Quick Links -->
@@ -399,7 +538,7 @@
                     <ul class="space-y-2">
                         <li><a href="{{ route('home') }}" class="footer-link">Home</a></li>
                         <li><a href="{{ route('booking.create') }}" class="footer-link">Booking</a></li>
-                        <li><a href="{{ route('home') }}#services" class="footer-link">Services</a></li>
+                        <li><a href="{{ route('booking.create') }}" class="footer-link">Services</a></li>
                     </ul>
                 </div>
 
@@ -419,11 +558,11 @@
                     <ul class="space-y-3 text-[#5e5720]">
                         <li class="flex items-start space-x-2">
                             <i class="fas fa-phone text-olive-600 mt-1"></i>
-                            <a href="tel:+353123456789" class="footer-link">+353 (0)1 234 5678</a>
+                            <a href="tel:+353899409670" class="footer-link">+353 89 940 9670</a>
                         </li>
                         <li class="flex items-start space-x-2">
                             <i class="fas fa-envelope text-olive-600 mt-1"></i>
-                            <a href="mailto:info@delphina.ie" class="footer-link">info@delphina.ie</a>
+                            <a href="mailto:d.mariamendonca@gmail.com" class="footer-link">d.mariamendonca@gmail.com</a>
                         </li>
                         <li class="flex items-start space-x-2">
                             <i class="fas fa-map-pin text-olive-600 mt-1"></i>
@@ -436,16 +575,20 @@
             <hr class="border-olive-100 my-8">
 
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <p class="text-[#5e5720] text-sm">&copy; {{ date('Y') }} Devnico. All rights reserved.</p>
+                <p class="text-[#5e5720] text-sm">&copy; {{ date('Y') }} Nails by Delphina · Site by Devnico</p>
                 <ul class="flex space-x-6 text-[#5e5720] text-sm mt-4 md:mt-0">
                     <li><a href="{{ route('policies') }}" class="footer-link">Privacy Policy</a></li>
-                    <li><a href="{{ route('admin.login') }}" class="footer-link font-medium">Admin</a></li>
                 </ul>
             </div>
         </div>
     </footer>
 
-    <!-- FAQ Chatbot -->
+    @if($showBookingSheet)
+        @include('partials.booking-sheet')
+    @endif
+
+    @unless(request()->routeIs('booking.create', 'book', 'payments.*'))
+    <!-- FAQ Chatbot (hidden on booking/payment pages, which have their own WhatsApp link) -->
     <button id="chatbot-launcher" class="chatbot-launcher" aria-label="Open support chat">
         <i class="fas fa-comments"></i>
     </button>
@@ -480,19 +623,94 @@
                 <button id="chatbot-send" class="px-3 py-2 rounded-lg bg-olive text-white text-sm font-semibold hover:bg-olive-700">Send</button>
             </div>
             <div class="mt-2">
-                <a href="https://wa.me/353123456789" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-full px-3 py-2 rounded-lg border border-olive-200 text-olive-700 text-sm font-semibold hover:bg-olive-50 transition-colors">
+                <a href="https://wa.me/353899409670" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-full px-3 py-2 rounded-lg border border-olive-200 text-olive-700 text-sm font-semibold hover:bg-olive-50 transition-colors">
                     <i class="fab fa-whatsapp mr-2"></i> Need more help? Chat on WhatsApp
                 </a>
             </div>
         </div>
     </section>
+    @endunless
 
     <!-- Scripts -->
     <script>
+        (function () {
+            const loader = document.getElementById('page-loader');
+            const bar = document.getElementById('pageLoaderBar');
+            const phraseEl = document.getElementById('pageLoaderPhrase');
+            if (!loader || !bar) return;
+
+            const phrases = ['Loading', 'Preparing your studio', 'Almost ready', 'Loading your nail inspo'];
+            let phraseIndex = 0;
+            let progress = 12;
+            bar.style.width = progress + '%';
+
+            const phraseTimer = window.setInterval(() => {
+                if (!phraseEl) return;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                phraseEl.style.opacity = 0;
+                window.setTimeout(() => {
+                    phraseEl.textContent = phrases[phraseIndex];
+                    phraseEl.style.opacity = 1;
+                }, 250);
+            }, 900);
+
+            const progressTimer = window.setInterval(() => {
+                progress = Math.min(progress + Math.random() * 12, 90);
+                bar.style.width = progress + '%';
+            }, 350);
+
+            // Reveal the page as soon as the HTML is ready (images keep loading
+            // in the background); never keep the loader up longer than 1.5s.
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                window.clearInterval(progressTimer);
+                window.clearInterval(phraseTimer);
+                bar.style.width = '100%';
+                if (phraseEl) {
+                    phraseEl.style.opacity = 0;
+                    window.setTimeout(() => {
+                        phraseEl.textContent = 'Ready!';
+                        phraseEl.style.opacity = 1;
+                    }, 200);
+                }
+
+                window.setTimeout(() => {
+                    loader.classList.add('is-hidden');
+                    window.setTimeout(() => loader.remove(), 400);
+                }, 250);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', finish);
+            } else {
+                finish();
+            }
+            window.setTimeout(finish, 1500);
+        })();
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         }
+
+        // Transparent-on-load nav that solidifies once the visitor scrolls (home page only).
+        (function () {
+            const siteNav = document.getElementById('siteNav');
+            if (!siteNav || !siteNav.classList.contains('site-nav--transparent')) {
+                return;
+            }
+
+            const SCROLL_THRESHOLD = 40;
+
+            const updateNavState = () => {
+                siteNav.classList.toggle('is-scrolled', window.scrollY > SCROLL_THRESHOLD);
+            };
+
+            updateNavState();
+            window.addEventListener('scroll', updateNavState, { passive: true });
+        })();
 
         // Toast notifications configuration
         toastr.options = {
@@ -502,7 +720,7 @@
             "timeOut": "5000",
         };
 
-        const whatsappNumber = '353123456789';
+        const whatsappNumber = '353899409670';
         const whatsappLink = `https://wa.me/${whatsappNumber}`;
         const chatbotLauncher = document.getElementById('chatbot-launcher');
         const chatbotPanel = document.getElementById('chatbot-panel');
@@ -534,10 +752,21 @@
             }
         ];
 
-        function appendMessage(text, type = 'bot') {
+        // Text is always inserted as text (never HTML) so nothing a visitor
+        // types can run as markup; an optional link is appended as an element.
+        function appendMessage(text, type = 'bot', link = null) {
             const msg = document.createElement('div');
             msg.className = `${type === 'user' ? 'chatbot-msg-user ml-10' : 'chatbot-msg-bot mr-10'} rounded-xl px-3 py-2 text-sm`;
-            msg.innerHTML = text;
+            msg.textContent = text;
+            if (link) {
+                const a = document.createElement('a');
+                a.href = link.href;
+                a.target = '_blank';
+                a.rel = 'noopener';
+                a.className = 'ml-1 font-semibold text-olive-700 underline';
+                a.textContent = link.label;
+                msg.appendChild(a);
+            }
             chatbotMessages.appendChild(msg);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
@@ -545,8 +774,8 @@
         function getFaqAnswer(question) {
             const normalized = question.toLowerCase();
             const match = faqRules.find(rule => rule.keys.some(key => normalized.includes(key)));
-            if (match) return match.answer;
-            return `I could not find an exact answer. For more details, message us on <a class="text-olive-700 font-semibold underline" href="${whatsappLink}" target="_blank" rel="noopener">WhatsApp (+353 (0)1 234 5678)</a>.`;
+            if (match) return { text: match.answer };
+            return { text: 'I could not find an exact answer. For more details, message us on', link: { href: whatsappLink, label: 'WhatsApp (+353 89 940 9670)' } };
         }
 
         function submitChatbotQuestion(text) {
@@ -554,7 +783,7 @@
             if (!question) return;
             appendMessage(question, 'user');
             const answer = getFaqAnswer(question);
-            setTimeout(() => appendMessage(answer, 'bot'), 220);
+            setTimeout(() => appendMessage(answer.text, 'bot', answer.link), 220);
         }
 
         chatbotLauncher?.addEventListener('click', () => chatbotPanel.classList.toggle('hidden'));
@@ -575,6 +804,18 @@
         });
     </script>
     
+    <script>
+        // Page scripts call axios with paths like '/admin/...'. Resolve them
+        // against the app's real base URL so they also work when the site
+        // lives in a subfolder (e.g. http://localhost/delphina/public).
+        // The Vite bundle that creates window.axios runs before this event.
+        window.appBaseUrl = @json(url('/'));
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.axios) {
+                window.axios.defaults.baseURL = window.appBaseUrl;
+            }
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

@@ -65,7 +65,12 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Europe/Dublin'),
+
+    // Proxies allowed to set X-Forwarded-* headers (e.g. "*" behind a Cloudflare
+    // Tunnel where the app is only reachable through the tunnel). Leave empty
+    // when the app is exposed directly, or visitors could spoof their IP.
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
 
     /*
     |--------------------------------------------------------------------------

@@ -1,0 +1,14 @@
+# Safety net for hosts where the document root is the project folder
+# instead of /public: never serve project files directly, and send every
+# request through public/ (where index.php and the assets live).
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|artisan|package(-lock)?\.json)(/|$) - [F,L,NC]
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|CV)(/|$) - [F,L,NC]
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>

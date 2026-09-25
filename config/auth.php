@@ -114,4 +114,16 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Studio admin two-factor login
+    |--------------------------------------------------------------------------
+    |
+    | After the password, a 6-digit code is emailed to the admin. Requires
+    | working mail settings (MAIL_*). Only disable to recover access.
+    |
+    */
+
+    'admin_two_factor' => (bool) env('ADMIN_TWO_FACTOR', true),
+
 ];

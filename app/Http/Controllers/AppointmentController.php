@@ -3,40 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    public function myAppointments()
+    /**
+     * Only reachable via the admin.appointments.cancel route (admin-guarded),
+     * so the caller is always staff cancelling a guest or registered booking
+     * on their behalf.
+     */
+    public function cancel(Request $request, Appointment $appointment)
     {
-        $appointments = auth()->user()->appointments()
-            ->with(['service', 'payment'])
-            ->orderBy('date', 'desc')
-            ->paginate(10);
+        if (! $appointment->canBeCancelled()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'This appointment cannot be cancelled.'], 422);
+            }
 
-        return view('appointments.my', compact('appointments'));
-    }
-
-    public function cancel(Appointment $appointment)
-    {
-        if ($appointment->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$appointment->canBeCancelled()) {
             return back()->with('error', 'This appointment cannot be cancelled.');
         }
 
-        $appointment->update(['status' => 'cancelled']);
+        $appointments = $appointment->group_id
+            ? Appointment::where('group_id', $appointment->group_id)->get()
+            : collect([$appointment]);
 
-        return back()->with('success', 'Appointment cancelled successfully.');
-    }
+        $appointments->each->update(['status' => 'cancelled']);
 
-    public function show(Appointment $appointment)
-    {
-        if ($appointment->user_id !== auth()->id()) {
-            abort(403);
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
         }
 
-        return view('appointments.show', compact('appointment'));
+        return back()->with('success', 'Appointment cancelled successfully.');
     }
 }

@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    // Google Search Console "HTML tag" verification code (content="...").
+    'google' => [
+        'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
+    'revolut' => [
+        'payment_link' => env('REVOLUT_PAYMENT_LINK'),
+    ],
+
 ];

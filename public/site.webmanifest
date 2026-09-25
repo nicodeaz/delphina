@@ -1,0 +1,21 @@
+{
+    "name": "Nails by Delphina",
+    "short_name": "Delphina",
+    "description": "Nail studio in Tallaght, Dublin - custom BIAB, gel extensions and nail art. Book your appointment online.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ece4d5",
+    "theme_color": "#5e5720",
+    "icons": [
+        {
+            "src": "/img/android-chrome-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/android-chrome-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

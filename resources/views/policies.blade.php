@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Policies - Delfi Nail Technician')
-@section('description', 'Booking policies, payment terms, and cancellation information for Delfi Nail Technician in Dublin 24, Tallaght.')
+@section('title', 'Booking Policy | Nails by Delphina, Tallaght')
+@section('description', 'Booking deposit, rescheduling and cancellation policy for Nails by Delphina, a private nail studio in Tallaght, Dublin 24.')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-nude via-white to-gray-50 py-16">

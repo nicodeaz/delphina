@@ -1,114 +1,84 @@
 @extends('layouts.app')
 
-@section('title', 'Payment - Nail Art Studio')
+@section('title', 'Pay your deposit - Nails by Delphina')
+@section('robots', 'noindex, nofollow')
+
+@php
+    $total = $bookingAppointments->sum(fn ($a) => (float) ($a->service->price ?? 0));
+    $duration = $bookingAppointments->sum(fn ($a) => (int) ($a->service->duration ?? 0));
+    $remaining = max(0, $total - $payment->amount);
+    $whenLabel = $appointment->date->format('l j F').' at '.substr($appointment->time, 0, 5);
+    $alreadyRedirected = $payment->payment_method === 'revolut';
+    $whatsappText = rawurlencode("Hi Delfi! I just booked {$bookingAppointments->pluck('service.name')->filter()->join(' + ')} for {$whenLabel} and sent the €".number_format($payment->amount, 0)." deposit. Name: {$appointment->name}");
+@endphp
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid md:grid-cols-2 gap-8">
-        <!-- Appointment Summary -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <h2 class="text-2xl font-serif font-bold text-gray-900 mb-6">Appointment Summary</h2>
-
-            <!-- Service -->
-            <div class="mb-6">
-                <div class="text-4xl mb-3">💅</div>
-                <h3 class="text-xl font-bold text-gray-900">{{ $appointment->service->name }}</h3>
-                <p class="text-gray-600">{{ $appointment->service->description }}</p>
+<div class="min-h-screen bg-gradient-to-br from-nude via-white to-beige-50">
+    <div class="mx-auto max-w-lg px-4 pb-16 pt-8 sm:px-6 md:pt-12">
+        <div class="text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-olive text-white shadow-lg">
+                <i class="fas fa-calendar-check text-xl"></i>
             </div>
+            <h1 class="mt-4 text-2xl font-semibold text-gray-900 md:text-3xl">Your spot is held</h1>
+            <p class="mx-auto mt-2 max-w-sm text-sm text-gray-600">Pay the €{{ number_format($payment->amount, 0) }} deposit to confirm it. You'll get a confirmation email once Delfi receives it.</p>
+        </div>
 
-            <!-- Details -->
-            <div class="space-y-4 py-6 border-y border-gray-200">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Date</span>
-                    <span class="font-bold text-gray-900">{{ $appointment->date->format('l, d F Y') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Time</span>
-                    <span class="font-bold text-gray-900">{{ $appointment->time }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Duration</span>
-                    <span class="font-bold text-gray-900">{{ $appointment->service->duration }} minutes</span>
-                </div>
-            </div>
-
-            <!-- Price -->
-            <div class="mt-6 p-4 bg-gradient-to-r from-rose/10 to-pink-300/10 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span class="text-lg font-semibold text-gray-900">Total Price</span>
-                    <span class="text-3xl font-bold text-rose">€{{ number_format($appointment->service->price, 2) }}</span>
-                </div>
-                <div class="mt-3 border-t border-rose/20 pt-3 space-y-1 text-sm text-gray-700">
-                    <div class="flex justify-between">
-                        <span>Deposit due now</span>
-                        <span class="font-semibold">€{{ number_format($payment->amount, 2) }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Remaining after service</span>
-                        <span class="font-semibold">€{{ number_format(max(0, $appointment->service->price - $payment->amount), 2) }}</span>
-                    </div>
-                </div>
+        {{-- Booking summary --}}
+        <div class="mt-6 rounded-[1.75rem] bg-white p-5 shadow-xl ring-1 ring-stone-100">
+            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-olive">{{ $whenLabel }}</p>
+            <ul class="mt-3 space-y-2">
+                @foreach($bookingAppointments as $item)
+                    <li class="flex items-start justify-between gap-3 text-sm">
+                        <span class="font-medium text-gray-900">{{ $item->service->name ?? 'Service' }}</span>
+                        <span class="shrink-0 text-gray-600">€{{ number_format($item->service->price ?? 0, 2) }}</span>
+                    </li>
+                @endforeach
+            </ul>
+            <div class="mt-4 space-y-1.5 border-t border-stone-100 pt-4 text-sm">
+                <div class="flex justify-between text-gray-600"><span>Total · {{ $duration }} min</span><span>€{{ number_format($total, 2) }}</span></div>
+                <div class="flex justify-between text-base font-bold text-gray-900"><span>Deposit now</span><span>€{{ number_format($payment->amount, 2) }}</span></div>
+                <div class="flex justify-between text-gray-500"><span>Rest, at the studio</span><span>€{{ number_format($remaining, 2) }}</span></div>
             </div>
         </div>
 
-        <!-- Payment Form -->
-        <div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-6">
-                <h2 class="text-2xl font-serif font-bold text-gray-900 mb-6">Payment Method</h2>
+        {{-- Pay --}}
+        <div class="mt-5 rounded-[1.75rem] bg-white p-5 shadow-xl ring-1 ring-stone-100">
+            @if($paymentConfigured)
+                <ol class="space-y-3 text-sm text-gray-700">
+                    <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-olive/10 text-xs font-bold text-olive">1</span><span>Tap the button — Revolut opens with <strong>€{{ number_format($payment->amount, 2) }}</strong>.</span></li>
+                    <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-olive/10 text-xs font-bold text-olive">2</span><span>Add your name <strong>“{{ $appointment->name }}”</strong> in the note and send.</span></li>
+                    <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-olive/10 text-xs font-bold text-olive">3</span><span>Delfi confirms it and you receive an email. Done!</span></li>
+                </ol>
 
-                <form action="{{ route('payments.process', $appointment) }}" method="POST" id="payment-form">
+                <form action="{{ route('payments.process', $appointment) }}" method="POST" class="mt-5" x-data="{ sending: false }" @submit="sending = true">
                     @csrf
-
-                    <!-- Deposit Info -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                        <div class="flex items-start space-x-3">
-                            <i class="fas fa-info-circle text-blue-600 mt-1"></i>
-                            <div>
-                                <p class="font-semibold text-blue-900">Deposit Amount</p>
-                                <p class="text-sm text-blue-800">€{{ number_format($payment->amount, 2) }} to confirm your appointment. The remaining balance is paid after the service.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Methods -->
-                    <div class="space-y-4 mb-8">
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-rose transition-colors has-[:checked]:border-rose has-[:checked]:bg-rose/5">
-                            <input type="radio" name="payment_method" value="card" class="w-4 h-4 text-rose" checked>
-                            <div class="ml-4">
-                                <p class="font-semibold text-gray-900">Debit / Credit Card</p>
-                                <p class="text-sm text-gray-600">Visa, Mastercard, American Express</p>
-                            </div>
-                        </label>
-
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-olive transition-colors has-[:checked]:border-olive has-[:checked]:bg-olive/5">
-                            <input type="radio" name="payment_method" value="transfer" class="w-4 h-4 text-olive">
-                            <div class="ml-4">
-                                <p class="font-semibold text-gray-900">Bank Transfer</p>
-                                <p class="text-sm text-gray-600">We'll send you bank details</p>
-                            </div>
-                        </label>
-                    </div>
-
-                    @error('payment_method')
-                        <p class="text-red-500 text-sm mb-4">{{ $message }}</p>
-                    @enderror
-
-                    <!-- Submit -->
-                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-rose to-pink-400 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-lg">
-                        <i class="fas fa-lock mr-2"></i> Pay Deposit
+                    <button type="submit" :disabled="sending" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-900 px-6 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-black disabled:opacity-70">
+                        <span x-show="!sending">Pay €{{ number_format($payment->amount, 2) }} with Revolut</span>
+                        <span x-show="sending" x-cloak><i class="fas fa-circle-notch fa-spin mr-2"></i>Opening Revolut…</span>
+                        <i x-show="!sending" class="fas fa-arrow-up-right-from-square text-sm"></i>
                     </button>
-
-                    <p class="text-xs text-gray-500 text-center mt-4">
-                        Your payment is secure and encrypted. This is a simulated payment for demo purposes.
-                    </p>
                 </form>
-            </div>
+                <p class="mt-3 text-center text-xs text-gray-500">No Revolut app? The link also opens in your browser.</p>
+            @else
+                <p class="text-sm text-gray-700">Online payment isn't available right now. Please message Delfi on WhatsApp to pay your €{{ number_format($payment->amount, 2) }} deposit.</p>
+            @endif
 
-            <!-- Back Link -->
-            <a href="{{ route('home') }}" class="block text-center px-6 py-3 text-gray-700 hover:text-gray-900 transition-colors font-medium">
-                ← Back to Home
+            @if($alreadyRedirected)
+                <div class="mt-5 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+                    <p class="font-semibold"><i class="fas fa-check-circle mr-1"></i>Already paid?</p>
+                    <p class="mt-1">Thank you! Delfi will confirm your deposit shortly and you'll get an email. Nothing else to do.</p>
+                </div>
+            @endif
+
+            <a href="https://wa.me/353899409670?text={{ $whatsappText }}" target="_blank" rel="noopener" class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-green-200 px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50">
+                <i class="fab fa-whatsapp text-lg"></i>Message Delfi
             </a>
         </div>
+
+        <p class="mt-6 text-center text-xs text-gray-500">
+            Your appointment is confirmed once the deposit is received. See our <a href="{{ route('policies') }}" class="font-semibold text-olive underline">booking policy</a>.
+        </p>
+        <a href="{{ route('home') }}" class="mt-3 block text-center text-sm font-medium text-gray-600 hover:text-gray-900">← Back to home</a>
     </div>
 </div>
 @endsection

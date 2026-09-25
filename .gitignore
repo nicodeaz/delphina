@@ -22,3 +22,13 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Personal documents (CV source files) - never commit or upload
+/CV
+
+# Production data (only on the VPS)
+/data
+/logs
+
+# Source photos/PDFs for the CV page (personal, not used at runtime)
+/resources/data

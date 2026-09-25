@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class AvailableDate extends Model
 {
@@ -26,8 +25,8 @@ class AvailableDate extends Model
     public static function slotsForDate($date, $serviceDuration = 60)
     {
         // Convert $date to ensure it's a string in YYYY-MM-DD format
-        $dateStr = is_object($date) ? $date->toDateString() : (string)$date;
-        
+        $dateStr = is_object($date) ? $date->toDateString() : (string) $date;
+
         $available = self::whereDate('date', $dateStr)
             ->where('is_active', true)
             ->orderBy('start_time')
@@ -38,33 +37,33 @@ class AvailableDate extends Model
         }
 
         $slots = [];
-        
+
         foreach ($available as $period) {
-            $startTime = \DateTime::createFromFormat('H:i', $period->start_time);
-            $endTime = \DateTime::createFromFormat('H:i', $period->end_time);
+            $startTime = \DateTime::createFromFormat('H:i', substr($period->start_time, 0, 5));
+            $endTime = \DateTime::createFromFormat('H:i', substr($period->end_time, 0, 5));
             $intervalMinutes = 30;
-            
+
             $current = $startTime;
             $serviceEnd = clone $current;
-            $serviceEnd->add(new \DateInterval('PT' . $serviceDuration . 'M'));
-            
+            $serviceEnd->add(new \DateInterval('PT'.$serviceDuration.'M'));
+
             while ($serviceEnd <= $endTime) {
                 $slots[] = [
                     'time' => $current->format('H:i'),
                     'available' => true,
                 ];
-                
+
                 // Move to next slot
-                $current->add(new \DateInterval('PT' . $intervalMinutes . 'M'));
+                $current->add(new \DateInterval('PT'.$intervalMinutes.'M'));
                 $serviceEnd = clone $current;
-                $serviceEnd->add(new \DateInterval('PT' . $serviceDuration . 'M'));
+                $serviceEnd->add(new \DateInterval('PT'.$serviceDuration.'M'));
             }
         }
 
         $uniqueSlots = [];
         foreach ($slots as $slot) {
             $timeKey = $slot['time'];
-            if (!isset($uniqueSlots[$timeKey])) {
+            if (! isset($uniqueSlots[$timeKey])) {
                 $uniqueSlots[$timeKey] = $slot;
             }
         }
@@ -77,20 +76,17 @@ class AvailableDate extends Model
      */
     public static function nextAvailableDates($days = 30)
     {
-        $dates = [];
-        $today = now();
+        $from = now()->addDay()->toDateString();
+        $until = now()->addDays($days)->toDateString();
 
-        for ($i = 1; $i <= $days; $i++) {
-            $date = $today->copy()->addDays($i);
-            $hasSlots = self::whereDate('date', $date->toDateString())
-                ->where('is_active', true)
-                ->exists();
-            
-            if ($hasSlots) {
-                $dates[] = $date->toDateString();
-            }
-        }
-
-        return $dates;
+        return self::where('is_active', true)
+            ->whereDate('date', '>=', $from)
+            ->whereDate('date', '<=', $until)
+            ->orderBy('date')
+            ->get(['date'])
+            ->map(fn (self $availableDate) => $availableDate->date->toDateString())
+            ->unique()
+            ->values()
+            ->all();
     }
 }

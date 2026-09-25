@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\AvailableDate;
 use Illuminate\Database\Seeder;
-use Carbon\Carbon;
 
 class AvailableDatesSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class AvailableDatesSeeder extends Seeder
         // Sunday: Closed
 
         $startDate = now()->addDays(1);
-        
+
         for ($i = 0; $i < 30; $i++) {
             $date = $startDate->copy()->addDays($i);
             $dayOfWeek = $date->dayOfWeek; // 0 = Sunday, 1 = Monday, etc.

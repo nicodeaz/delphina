@@ -12,15 +12,6 @@ class BookingController extends Controller
 {
     public function create()
     {
-        Service::firstOrCreate(
-            ['name' => 'Trial Consultation'],
-            [
-                'description' => 'Short consultation to discuss your style, nail health, and service plan.',
-                'price' => 0,
-                'duration' => 30,
-            ]
-        );
-
         $services = Service::all();
         $availableDates = AvailableDate::nextAvailableDates(90);
 
@@ -30,7 +21,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'services' => 'required|string', // JSON string of selected services
+            'services' => 'required|string|max:5000', // JSON object keyed by service name
             'appointment_date' => 'required|date|after:today',
             'appointment_time' => 'required|date_format:H:i',
             'name' => 'required|string|max:255',
@@ -43,15 +34,20 @@ class BookingController extends Controller
 
         $request->validate($rules);
 
-        // Parse services from JSON
+        // Parse services from JSON; resolve them in one query (bounded list).
         $servicesData = json_decode($request->services, true);
-        if (!$servicesData || !is_array($servicesData)) {
-            return back()->withErrors(['services' => 'Invalid services data.']);
+        if (! $servicesData || ! is_array($servicesData) || count($servicesData) > 10) {
+            return $this->bookingError($request, 'services', 'Please choose at least one service.');
+        }
+
+        $services = Service::whereIn('name', array_map('strval', array_keys($servicesData)))->get();
+        if ($services->isEmpty()) {
+            return $this->bookingError($request, 'services', 'Please choose at least one service.');
         }
 
         // Check availability for the time slot
-        if (!$this->isTimeSlotAvailable($request->appointment_date, $request->appointment_time, $servicesData)) {
-            return back()->withErrors(['appointment_time' => 'Time slot not available. Please select another time or date.']);
+        if (! $this->isTimeSlotAvailable($request->appointment_date, $request->appointment_time, (int) $services->sum('duration'))) {
+            return $this->bookingError($request, 'appointment_time', 'Sorry, that time was just taken. Please pick another time or day.');
         }
 
         // Generate a group ID for related appointments
@@ -61,12 +57,7 @@ class BookingController extends Controller
         $totalAmount = 0;
 
         // Create appointments for each service
-        foreach ($servicesData as $serviceName => $serviceData) {
-            $service = Service::where('name', $serviceName)->first();
-            if (!$service) {
-                continue; // Skip if service not found
-            }
-
+        foreach ($services as $service) {
             $appointmentData = [
                 'service_id' => $service->id,
                 'date' => $request->appointment_date,
@@ -86,117 +77,129 @@ class BookingController extends Controller
         }
 
         if (empty($appointments)) {
-            return back()->withErrors(['services' => 'No valid services found.']);
+            return $this->bookingError($request, 'services', 'Please choose at least one service.');
         }
 
         // Create a single payment for the group
         $payment = Payment::create([
             'appointment_id' => $appointments[0]->id, // Link to first appointment
-            'amount' => 15.00, // Fixed deposit
+            'amount' => Payment::AMOUNT, // Fixed deposit
             'status' => 'pending',
             'group_id' => $groupId,
         ]);
+
+        // Bookings are made by guests, so remember in this session which ones
+        // this visitor is allowed to view and pay for.
+        $request->session()->put('booking_access', array_merge(
+            $request->session()->get('booking_access', []),
+            collect($appointments)->pluck('id')->all()
+        ));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'redirect' => route('payments.show', $appointments[0]->id),
+            ]);
+        }
 
         return redirect()->route('payments.show', $appointments[0]->id)
             ->with('success', 'Appointment confirmed! Please complete your €15 deposit to finalize.');
     }
 
+    private function bookingError(Request $request, string $field, string $message)
+    {
+        if ($request->wantsJson()) {
+            return response()->json(['message' => $message, 'errors' => [$field => [$message]]], 422);
+        }
+
+        return back()->withErrors([$field => $message])->withInput();
+    }
+
     /**
      * Check if a time slot is available for multiple services
      */
-    private function isTimeSlotAvailable($date, $time, $servicesData)
+    private function isTimeSlotAvailable($date, $time, int $totalDuration)
     {
-        // Check if the date/time is within available periods
-        $dateConfig = AvailableDate::whereDate('date', $date)
+        // The whole appointment has to fit inside one of the opened windows.
+        $fitsInWindow = AvailableDate::whereDate('date', $date)
             ->where('is_active', true)
-            ->get();
+            ->get()
+            ->contains(function ($config) use ($time, $totalDuration) {
+                $start = strtotime(substr($config->start_time, 0, 5));
+                $end = strtotime(substr($config->end_time, 0, 5));
+                $bookingStart = strtotime($time);
 
-        if ($dateConfig->isEmpty()) {
+                return $bookingStart >= $start && $bookingStart + $totalDuration * 60 <= $end;
+            });
+
+        if (! $fitsInWindow) {
             return false;
         }
 
-        $timeObj = \DateTime::createFromFormat('H:i', $time);
-
-        // Check if time falls within any configured period
-        $isWithinPeriod = false;
-        foreach ($dateConfig as $config) {
-            $startTime = \DateTime::createFromFormat('H:i', $config->start_time);
-            $endTime = \DateTime::createFromFormat('H:i', $config->end_time);
-
-            if ($timeObj >= $startTime && $timeObj < $endTime) {
-                $isWithinPeriod = true;
-                break;
-            }
-        }
-
-        if (!$isWithinPeriod) {
-            return false;
-        }
-
-        // Calculate total duration of all services
-        $totalDuration = 0;
-        foreach ($servicesData as $serviceName => $serviceData) {
-            $service = Service::where('name', $serviceName)->first();
-            if ($service) {
-                $totalDuration += $service->duration;
-            }
-        }
-
-        // Check if slot is not already booked (considering duration overlap)
         $startTime = strtotime($time);
         $endTime = $startTime + $totalDuration * 60;
 
-        $conflicting = Appointment::whereDate('date', $date)
+        return collect($this->busyBlocks($date))->every(
+            fn ($block) => ! ($startTime < $block['end'] && $endTime > $block['start'])
+        );
+    }
+
+    /**
+     * Occupied [start, end) ranges on a date. A multi-service booking is
+     * several rows sharing a group_id and a start time, so the rows are
+     * collapsed and their durations summed into one continuous block.
+     */
+    private function busyBlocks($date): array
+    {
+        return Appointment::with('service')
+            ->whereDate('date', $date)
             ->whereIn('status', ['pending', 'approved', 'confirmed', 'completed'])
             ->get()
-            ->filter(function ($appointment) use ($startTime, $endTime) {
-                $appStart = strtotime($appointment->time);
-                $appEnd = $appStart + $appointment->service->duration * 60;
-                return ($startTime < $appEnd && $endTime > $appStart);
-            });
+            ->groupBy(fn ($appointment) => $appointment->group_id ?: "appointment-{$appointment->id}")
+            ->map(function ($rows) {
+                $start = strtotime(substr($rows->first()->time, 0, 5));
 
-        return $conflicting->isEmpty();
+                return [
+                    'start' => $start,
+                    'end' => $start + $rows->sum(fn ($a) => $a->service->duration ?? 0) * 60,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     public function getAvailableSlots(Request $request)
     {
         $date = $request->query('date');
-        $totalDuration = (int) $request->query('duration', 60); // Default 60 minutes
+        $totalDuration = max(15, (int) $request->query('duration', 60)); // Default 60 minutes
 
-        if (!$date) {
+        if (! $date) {
             return response()->json(['error' => 'Date is required'], 400);
         }
 
         try {
             $slots = AvailableDate::slotsForDate($date, $totalDuration);
-
-            $appointments = Appointment::with('service')
-                ->whereDate('date', $date)
-                ->whereIn('status', ['pending', 'approved', 'confirmed', 'completed'])
-                ->get();
+            $busy = $this->busyBlocks($date);
 
             return response()->json([
-                'slots' => array_map(function ($slot) use ($appointments, $totalDuration) {
+                'slots' => array_map(function ($slot) use ($busy, $totalDuration) {
                     $slotStart = strtotime($slot['time']);
                     $slotEnd = $slotStart + ($totalDuration * 60);
 
-                    $available = $appointments->every(function ($appointment) use ($slotStart, $slotEnd) {
-                        $appointmentStart = strtotime($appointment->time);
-                        $appointmentEnd = $appointmentStart + (($appointment->service->duration ?? 0) * 60);
-
-                        return !($slotStart < $appointmentEnd && $slotEnd > $appointmentStart);
-                    });
+                    $available = collect($busy)->every(
+                        fn ($block) => ! ($slotStart < $block['end'] && $slotEnd > $block['start'])
+                    );
 
                     return [
                         'time' => $slot['time'],
                         'available' => $available,
                     ];
-                }, $slots)
+                }, $slots),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error getting available slots: ' . $e->getMessage());
+            \Log::error('Error getting available slots: '.$e->getMessage());
+
             return response()->json(['error' => 'Unable to load available slots'], 500);
         }
     }
 }
-

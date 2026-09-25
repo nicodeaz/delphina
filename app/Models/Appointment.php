@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
-    protected $fillable = ['user_id', 'service_id', 'date', 'time', 'status', 'name', 'email', 'phone', 'preferred_contact', 'notes', 'group_id'];
+    protected $fillable = ['user_id', 'service_id', 'date', 'time', 'status', 'balance_status', 'name', 'email', 'phone', 'preferred_contact', 'notes', 'group_id'];
+
     protected $casts = [
         'date' => 'date',
     ];
@@ -26,7 +27,7 @@ class Appointment extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('status', '!=', 'cancelled')
-                     ->where('date', '>=', Carbon::today());
+            ->where('date', '>=', Carbon::today());
     }
 
     // Relationships
@@ -54,6 +55,7 @@ class Appointment extends Model
             'rejected' => '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800">Rejected</span>',
             'cancelled' => '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">Cancelled</span>',
         ];
+
         return $badges[$this->status] ?? '';
     }
 
