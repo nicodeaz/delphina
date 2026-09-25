@@ -6,6 +6,7 @@ use App\Models\AvailableDate;
 use App\Models\Payment;
 use App\Models\Service;
 use Illuminate\Http\Middleware\TrustProxies;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // The production SQLite file holds every booking: refuse commands that
+        // wipe it (migrate:fresh/refresh/reset, db:wipe) in production.
+        DB::prohibitDestructiveCommands($this->app->isProduction());
+
         // Behind a tunnel/proxy, use the real visitor IP (rate limits are per IP).
         if ($proxies = config('app.trusted_proxies')) {
             TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));

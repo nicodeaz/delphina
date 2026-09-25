@@ -24,6 +24,36 @@ config/rutas/vistas solo. Nunca sube `.env`, la base de datos, `CV/` ni `resourc
 
 Si cambiás el `.env`: `docker compose up -d --force-recreate` en `~/sites/delphina`.
 
+## Datos y backups (importante)
+
+Toda la información (agenda, horarios, reservas, pagos, servicios, usuario admin) está en
+**un solo archivo**: `~/sites/delphina/data/database.sqlite` en el VPS. Está fuera del
+contenedor (montado como volumen), así que **deployar no la toca**: `deploy.sh` excluye
+`data/` y `.env`, y además cancela el deploy si el paquete trajera una base o un `.env`.
+En producción están bloqueados `migrate:fresh`, `migrate:refresh`, `migrate:reset` y `db:wipe`.
+
+Backups (`scripts/backup-db.sh`: backup en caliente + chequeo de integridad, comprimido):
+
+| Cuándo | Dónde |
+|---|---|
+| Todos los días 02:30 UTC (cron del usuario `ubuntu`) | VPS `~/backups/delphina/` (se guardan 30 días, log en `backup.log`) |
+| Antes de cada `./deploy.sh` (si falla, no se deploya) | VPS `~/backups/delphina/` |
+| Copia del backup previo a cada deploy | Esta PC: `~/backups/delphina/` (fuera del VPS) |
+
+Backup manual en cualquier momento: `ssh okto-vps '~/sites/delphina/scripts/backup-db.sh manual'`.
+
+### Restaurar un backup
+
+```bash
+ssh okto-vps
+cd ~/sites/delphina
+docker compose stop
+cp data/database.sqlite data/database.sqlite.before-restore     # por las dudas
+gunzip -c ~/backups/delphina/database-AAAAMMDD-HHMMSS-xxx.sqlite.gz > data/database.sqlite
+sudo chown 33:33 data/database.sqlite                           # usuario www-data del contenedor
+docker compose start
+```
+
 ## Mail
 
 - Envía `no-reply@okto.ie` (casilla técnica en el `okto-mail` del mismo VPS; su contraseña
