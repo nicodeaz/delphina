@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewBookingNotificationMail;
 use App\Models\Appointment;
 use App\Models\AvailableDate;
 use App\Models\Payment;
 use App\Models\Service;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -88,6 +92,8 @@ class BookingController extends Controller
             'group_id' => $groupId,
         ]);
 
+        $this->notifyStudio($appointments[0]);
+
         // Bookings are made by guests, so remember in this session which ones
         // this visitor is allowed to view and pay for.
         $request->session()->put('booking_access', array_merge(
@@ -104,6 +110,25 @@ class BookingController extends Controller
 
         return redirect()->route('payments.show', $appointments[0]->id)
             ->with('success', 'Appointment confirmed! Please complete your €15 deposit to finalize.');
+    }
+
+    /**
+     * Let Delfi know about the new booking (best-effort: a mail problem must
+     * never stop the client from reaching the deposit page).
+     */
+    private function notifyStudio(Appointment $appointment): void
+    {
+        $recipients = User::where('role', 'admin')->pluck('email')->filter()->all();
+
+        if (empty($recipients)) {
+            return;
+        }
+
+        try {
+            Mail::to($recipients)->send(new NewBookingNotificationMail($appointment));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send new booking notification: '.$e->getMessage());
+        }
     }
 
     private function bookingError(Request $request, string $field, string $message)

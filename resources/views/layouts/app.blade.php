@@ -8,7 +8,7 @@
     @php
         $pageTitle = trim($__env->yieldContent('title', 'Nails by Delphina - Nail Technician in Tallaght, Dublin'));
         $pageDescription = trim($__env->yieldContent('description', 'Personalised BIAB, gel extensions and detailed nail art from a private studio in Tallaght, Dublin. Book your appointment online.'));
-        $pageImage = trim($__env->yieldContent('og_image', asset('img/og-share.jpg')));
+        $pageImage = trim($__env->yieldContent('og_image', asset('img/og-share-rose.jpg')));
         $canonicalUrl = url()->current();
     @endphp
 
@@ -55,7 +55,7 @@
         "@@id": "{{ url('/') }}#business",
         "name": "Nails by Delphina",
         "description": "Personalised BIAB, gel nails, soft gel extensions and nail art in a private studio in Tallaght, Dublin 24.",
-        "image": "{{ asset('img/og-share.jpg') }}",
+        "image": "{{ asset('img/og-share-rose.jpg') }}",
         "logo": "{{ asset('img/logo_green.png') }}",
         "areaServed": ["Tallaght", "Dublin 24", "South Dublin"],
         "currenciesAccepted": "EUR",
@@ -459,7 +459,7 @@
     <!-- Navigation -->
     <nav id="siteNav" class="site-nav {{ request()->routeIs('home') ? 'site-nav--transparent' : 'site-nav--solid' }} fixed inset-x-0 top-0 z-50 w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-center items-center h-16 md:h-20">
+            <div class="flex items-center justify-start h-16 md:h-20 md:justify-center">
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center gap-1">
                     <a href="{{ route('home') }}" class="site-nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}">Home</a>
@@ -478,7 +478,7 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden p-2 hover:bg-olive-50 rounded-lg transition-colors">
+                <button onclick="toggleMobileMenu()" class="mobile-menu-btn -ml-2 md:hidden p-2 hover:bg-olive-50 rounded-lg transition-colors" aria-label="Open menu">
                     <i class="fas fa-bars text-2xl text-gray-700"></i>
                 </button>
             </div>

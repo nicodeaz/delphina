@@ -121,9 +121,10 @@
     }
 
     @media (max-width: 768px) {
+        /* Clear the fixed menu bar; the hero content starts at the top on phones. */
         .home-hero-text {
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem;
+            padding-top: 5.5rem;
+            padding-bottom: 4rem;
         }
 
         .home-hero-glow-one,
@@ -137,21 +138,21 @@
 @section('content')
 
 <!-- Hero Section -->
-<section id="heroSpotlight" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#d8d2c6]">
-    <img src="{{ asset('img/opt/hero-delphina-1600.webp') }}"
-         srcset="{{ asset('img/opt/hero-delphina-800.webp') }} 800w, {{ asset('img/opt/hero-delphina-1600.webp') }} 1600w"
-         sizes="100vw" width="1600" height="900" fetchpriority="high" decoding="async"
-         alt="Hands with elegant olive and nude gel nails by Nails by Delphina, Tallaght" class="home-hero-media absolute inset-0 h-full w-full" />
-    <div class="home-hero-spotlight-mask absolute inset-0 bg-gradient-to-r from-black/55 via-black/30 to-black/70"></div>
-    <div class="home-hero-spotlight-mask absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10"></div>
+<section id="heroSpotlight" class="relative flex min-h-screen items-start justify-center overflow-hidden bg-[#d8d2c6] md:items-center">
+    <img src="{{ asset('img/opt/hero-rose-1600.webp') }}"
+         srcset="{{ asset('img/opt/hero-rose-800.webp') }} 800w, {{ asset('img/opt/hero-rose-1600.webp') }} 1600w, {{ asset('img/opt/hero-rose-2400.webp') }} 2400w"
+         sizes="100vw" width="1600" height="899" fetchpriority="high" decoding="async"
+         alt="Hands with blush pink almond nails and fine gold details beside a vase of pink roses" class="home-hero-media absolute inset-0 h-full w-full" />
+    <div class="home-hero-spotlight-mask absolute inset-0 bg-gradient-to-r from-[#1f1110]/60 via-[#1f1110]/30 to-[#1f1110]/70"></div>
+    <div class="home-hero-spotlight-mask absolute inset-0 bg-gradient-to-t from-[#1f1110]/45 via-transparent to-[#1f1110]/10"></div>
     <div class="home-hero-grain absolute inset-0"></div>
     <div class="home-hero-glow-one absolute -left-10 top-20 h-56 w-56 rounded-full bg-rose/20 blur-3xl"></div>
     <div class="home-hero-glow-two absolute bottom-16 right-8 h-72 w-72 rounded-full bg-olive/20 blur-3xl"></div>
 
     <!-- Content -->
-    <div class="home-hero-text relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl">
+    <div class="home-hero-text relative z-10 max-w-5xl px-4 text-center sm:px-6 lg:px-8">
         <div class="mb-8 flex flex-col items-center gap-5">
-            <span class="home-intro-badge inline-flex items-center rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/95">
+            <span class="home-intro-badge inline-flex items-center whitespace-nowrap rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/95 sm:px-5 sm:py-2 sm:text-xs sm:tracking-[0.32em]">
                 Nail artistry, tailored to you
             </span>
             <img src="{{ asset('img/logo.png') }}" alt="Delphina logo" class="home-hero-logo-white h-24 md:h-28 lg:h-32 w-auto object-contain">

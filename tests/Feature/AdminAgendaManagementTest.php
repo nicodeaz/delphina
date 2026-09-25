@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Mail\NewBookingNotificationMail;
 use App\Models\Appointment;
 use App\Models\AvailableDate;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AdminAgendaManagementTest extends TestCase
@@ -233,6 +235,35 @@ class AdminAgendaManagementTest extends TestCase
         $appointment = Appointment::sole();
         $response->assertOk()->assertJson(['redirect' => route('payments.show', $appointment)]);
         $this->get(route('payments.show', $appointment))->assertOk()->assertSee('Pay €15.00 with Revolut');
+    }
+
+    public function test_each_online_booking_emails_the_studio(): void
+    {
+        Mail::fake();
+        $date = now()->addDays(3)->toDateString();
+        AvailableDate::create(['date' => $date, 'start_time' => '09:00', 'end_time' => '13:00', 'is_active' => true]);
+
+        $this->postJson(route('bookings.store'), [
+            'services' => json_encode([$this->gel->name => ['id' => $this->gel->id], $this->art->name => ['id' => $this->art->id]]),
+            'appointment_date' => $date,
+            'appointment_time' => '10:00',
+            'name' => 'Guest Client',
+            'email' => 'guest@example.com',
+            'phone' => '0871234567',
+            'notes' => 'Almond, short',
+            'terms' => 1,
+        ])->assertOk();
+
+        Mail::assertSent(NewBookingNotificationMail::class, function ($mail) {
+            $html = $mail->render();
+
+            return $mail->hasTo($this->admin->email)
+                && $mail->hasReplyTo('guest@example.com')
+                && str_contains($html, 'Guest Client')
+                && str_contains($html, 'Gel - Full Set')
+                && str_contains($html, 'Nail Art')
+                && str_contains($html, 'Almond, short');
+        });
     }
 
     public function test_public_booking_rejects_oversized_service_lists(): void
