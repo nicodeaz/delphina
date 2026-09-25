@@ -30,11 +30,13 @@ tar -czf "$ARCHIVE" \
     --exclude=./.env --exclude='./.env.backup' --exclude='./.env.production' \
     --exclude=./data --exclude=./logs --exclude='./database/*.sqlite' \
     --exclude='./storage/logs/*.log' --exclude='./storage/framework/views/*.php' \
-    --exclude='./storage/framework/sessions/*' --exclude=./resources/data \
+    --exclude='./storage/framework/sessions/*' --exclude='./storage/framework/cache/data/*' \
+    --exclude=./resources/data \
     --exclude=./.claude --exclude=./public/hot .
 
-# Safety net: never ship a database or secrets that could overwrite production.
-if tar -tzf "$ARCHIVE" | grep -qE '(^|/)(data/|\.env$|[^/]*\.sqlite$)'; then
+# Safety net: never ship a database or secrets that could overwrite production
+# (the root data/ folder, the root .env, or any *.sqlite file anywhere).
+if tar -tzf "$ARCHIVE" | grep -qE '^\./(data/|\.env$)|\.sqlite$'; then
     echo "ABORT: the package contains a database, data/ or .env — nothing was deployed." >&2
     rm -f "$ARCHIVE"
     exit 1
