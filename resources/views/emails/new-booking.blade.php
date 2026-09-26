@@ -66,6 +66,12 @@
                     <a href="https://wa.me/{{ $phoneDigits }}" style="display:inline-block; padding:11px 20px; font-size:14px; font-weight:600; color:#554F13; text-decoration:none;">WhatsApp client</a>
                 </td>
             @endif
+            @if($appointment->email)
+                <td style="width:10px;"></td>
+                <td style="border-radius:14px; border:1px solid #DDD6AA;">
+                    <a href="mailto:{{ $appointment->email }}?subject={{ rawurlencode('Your appointment at Nails by Delphina') }}" style="display:inline-block; padding:11px 20px; font-size:14px; font-weight:600; color:#554F13; text-decoration:none;">Email client</a>
+                </td>
+            @endif
         </tr>
     </table>
 @endsection

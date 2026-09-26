@@ -9,7 +9,8 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Sent to the studio admin whenever a client books online, so Delfi knows to
- * expect the Revolut deposit. Replies go straight to the client.
+ * expect the Revolut deposit. (No Reply-To to the client: a free-mail Reply-To
+ * that differs from the sender is a strong spam signal.)
  */
 class NewBookingNotificationMail extends Mailable
 {
@@ -28,14 +29,12 @@ class NewBookingNotificationMail extends Mailable
             $this->appointment->name,
             $this->appointment->date->format('D j M'),
             substr($this->appointment->time, 0, 5)
-        ))->view('emails.new-booking', [
-            'appointment' => $this->appointment,
-            'appointments' => $appointments,
-        ]);
-
-        if ($this->appointment->email) {
-            $mail->replyTo($this->appointment->email, $this->appointment->name);
-        }
+        ))->view('emails.new-booking')
+            ->text('emails.text.new-booking')
+            ->with([
+                'appointment' => $this->appointment,
+                'appointments' => $appointments,
+            ]);
 
         return $mail;
     }

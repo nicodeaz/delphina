@@ -21,7 +21,9 @@ class AppointmentConfirmationMail extends Mailable
             : collect([$this->appointment->loadMissing('service')]);
 
         return $this->subject('Your appointment is confirmed · Nails by Delphina')
-            ->view('emails.appointment-confirmation', [
+            ->view('emails.appointment-confirmation')
+            ->text('emails.text.appointment-confirmation')
+            ->with([
                 'appointment' => $this->appointment,
                 'appointments' => $appointments,
             ]);

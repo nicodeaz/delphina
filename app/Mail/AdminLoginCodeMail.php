@@ -15,7 +15,9 @@ class AdminLoginCodeMail extends Mailable
     public function build(): self
     {
         return $this->subject("{$this->code} is your Delphina Studio login code")
-            ->view('emails.login-code', [
+            ->view('emails.login-code')
+            ->text('emails.text.login-code')
+            ->with([
                 'code' => $this->code,
                 'minutes' => $this->minutes,
             ]);

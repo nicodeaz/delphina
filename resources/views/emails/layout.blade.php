@@ -12,9 +12,6 @@
     <title>{{ $title ?? 'Nails by Delphina' }}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#FBF7F1; font-family:'Poppins', Helvetica, Arial, sans-serif; color:#2F2A09;">
-    @isset($preheader)
-        <div style="display:none; max-height:0; overflow:hidden; opacity:0;">{{ $preheader }}</div>
-    @endisset
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#FBF7F1;">
         <tr>
             <td align="center" style="padding:32px 16px;">

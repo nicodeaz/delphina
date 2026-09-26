@@ -258,7 +258,8 @@ class AdminAgendaManagementTest extends TestCase
             $html = $mail->render();
 
             return $mail->hasTo($this->admin->email)
-                && $mail->hasReplyTo('guest@example.com')
+                && ! $mail->hasReplyTo('guest@example.com')
+                && str_contains($html, 'mailto:guest@example.com')
                 && str_contains($html, 'Guest Client')
                 && str_contains($html, 'Gel - Full Set')
                 && str_contains($html, 'Nail Art')

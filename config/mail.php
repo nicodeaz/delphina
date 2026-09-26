@@ -115,10 +115,4 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
-    // Where replies go (e.g. a client answering her confirmation email).
-    'reply_to' => env('MAIL_REPLY_TO_ADDRESS') ? [
-        'address' => env('MAIL_REPLY_TO_ADDRESS'),
-        'name' => env('MAIL_REPLY_TO_NAME', env('MAIL_FROM_NAME')),
-    ] : null,
-
 ];
