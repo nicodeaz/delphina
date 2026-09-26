@@ -20,7 +20,7 @@
         @touchstart.passive="barTouchStart($event)"
         @touchmove.passive="barTouchMove($event)"
     >
-        <div class="rounded-t-[1.5rem] border-t border-stone-200 bg-white/95 px-4 pb-3 pt-2 shadow-[0_-10px_30px_rgba(65,59,14,0.14)] backdrop-blur md:rounded-[1.5rem] md:border md:pt-3" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
+        <div class="rounded-t-[1.5rem] border-t border-stone-200 bg-white/[0.97] px-4 pb-3 pt-2 shadow-[0_-10px_30px_rgba(65,59,14,0.14)] md:rounded-[1.5rem] md:border md:pt-3" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
             <button type="button" @click="show()" class="mx-auto mb-2 block h-1.5 w-10 rounded-full bg-stone-300 md:hidden" aria-label="Open booking"></button>
             <div class="flex items-center gap-3">
                 <button type="button" @click="show()" class="min-w-0 flex-1 text-left">

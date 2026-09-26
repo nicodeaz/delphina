@@ -83,14 +83,13 @@ if ('IntersectionObserver' in window) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Shared scroll loop                                                  */
+/* Scroll-driven effects                                               */
 /* ------------------------------------------------------------------ */
 const progressBar = document.querySelector('.scroll-progress');
 const statement = document.querySelector('[data-fill]');
 const steps = document.querySelector('[data-steps]');
 let lastScrollY = window.scrollY;
 let scrollVelocity = 0;
-let marqueeHalf = 0;
 
 if (statement) {
     const words = statement.textContent.trim().split(/\s+/);
@@ -104,6 +103,8 @@ if (statement) {
         return i < words.length - 1 ? [span, document.createTextNode(' ')] : [span];
     }));
 }
+const statementWords = statement ? [...statement.querySelectorAll('.fill-word')] : [];
+const stepItems = steps ? [...steps.querySelectorAll('.step')] : [];
 
 function sectionProgress(el, start = 0.85, end = 0.35) {
     const rect = el.getBoundingClientRect();
@@ -113,16 +114,8 @@ function sectionProgress(el, start = 0.85, end = 0.35) {
     return clamp((vh * start - rect.top) / total, 0, 1);
 }
 
-let layoutDirty = true;
-window.addEventListener('resize', () => { layoutDirty = true; marqueeHalf = 0; }, { passive: true });
-
-function onScrollFrame() {
+function updateScrollEffects() {
     const y = window.scrollY;
-    scrollVelocity = lerp(scrollVelocity, y - lastScrollY, 0.2);
-    const moved = y !== lastScrollY;
-    lastScrollY = y;
-    if (!moved && !layoutDirty) return;
-    layoutDirty = false;
 
     if (progressBar) {
         const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -130,37 +123,37 @@ function onScrollFrame() {
     }
 
     if (statement) {
-        const words = statement.querySelectorAll('.fill-word');
-        const lit = Math.round(sectionProgress(statement, 0.9, 0.45) * words.length);
-        words.forEach((w, i) => w.classList.toggle('is-lit', reduceMotion || i < lit));
+        const lit = Math.round(sectionProgress(statement, 0.9, 0.45) * statementWords.length);
+        statementWords.forEach((w, i) => w.classList.toggle('is-lit', reduceMotion || i < lit));
     }
 
     if (steps) {
         const p = reduceMotion ? 1 : sectionProgress(steps, 0.8, 0.5);
         steps.style.setProperty('--line', p.toFixed(3));
-        steps.querySelectorAll('.step').forEach((step, i, all) => {
-            step.classList.toggle('is-active', p >= (all.length === 1 ? 0 : i / (all.length - 1)) - 0.02);
+        stepItems.forEach((step, i) => {
+            step.classList.toggle('is-active', p >= (stepItems.length === 1 ? 0 : i / (stepItems.length - 1)) - 0.02);
         });
     }
 }
 
 /* ------------------------------------------------------------------ */
-/* Marquee: steady drift, nudged by scroll speed & direction           */
+/* Marquee: a compositor animation (no per-frame JS); scrolling only    */
+/* nudges its speed and direction.                                     */
 /* ------------------------------------------------------------------ */
-const marquee = document.querySelector('.marquee-track');
-let marqueeX = 0;
-let marqueeDir = -1;
+const marqueeTrack = document.querySelector('.marquee-track');
+const marqueeAnim = (marqueeTrack && !reduceMotion && marqueeTrack.animate)
+    ? marqueeTrack.animate(
+        [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(-50%, 0, 0)' }],
+        { duration: 42000, iterations: Infinity },
+    )
+    : null;
+let marqueeDir = 1;
 
-function marqueeFrame() {
-    if (!marquee) return;
-    if (!marqueeHalf) marqueeHalf = marquee.scrollWidth / 2;
-    const half = marqueeHalf;
-    if (Math.abs(scrollVelocity) > 0.5) marqueeDir = scrollVelocity > 0 ? -1 : 1;
-    const speed = 0.6 + Math.min(Math.abs(scrollVelocity) * 0.35, 12);
-    marqueeX += marqueeDir * speed;
-    if (marqueeX <= -half) marqueeX += half;
-    if (marqueeX > 0) marqueeX -= half;
-    marquee.style.setProperty('--marquee-x', `${marqueeX.toFixed(2)}px`);
+function updateMarquee() {
+    if (!marqueeAnim) return;
+    if (Math.abs(scrollVelocity) > 0.5) marqueeDir = scrollVelocity > 0 ? 1 : -1;
+    const boost = 1 + Math.min(Math.abs(scrollVelocity) * 0.12, 5);
+    marqueeAnim.playbackRate = marqueeDir * boost;
 }
 
 /* ------------------------------------------------------------------ */
@@ -169,46 +162,78 @@ function marqueeFrame() {
 const hero = document.querySelector('.hero');
 const heroMedia = hero?.querySelector('.hero-media');
 const heroGlow = hero?.querySelector('.hero-glow');
-const target = { x: 0.5, y: 0.45, active: false };
-const current = { x: 0.5, y: 0.45 };
+const REST = { x: 0.66, y: 0.42 };
+const target = { ...REST };
+const current = { ...REST };
 let heroVisible = true;
-let idleT = 0;
 
-if (hero) {
-    const setTarget = (clientX, clientY) => {
-        const rect = hero.getBoundingClientRect();
-        target.x = clamp((clientX - rect.left) / rect.width, 0, 1);
-        target.y = clamp((clientY - rect.top) / rect.height, 0, 1);
-        target.active = true;
-    };
-    hero.addEventListener('pointermove', (e) => setTarget(e.clientX, e.clientY), { passive: true });
-    hero.addEventListener('pointerdown', (e) => setTarget(e.clientX, e.clientY), { passive: true });
-    hero.addEventListener('pointerleave', () => { target.active = false; }, { passive: true });
-    hero.addEventListener('touchmove', (e) => {
-        const t = e.touches[0];
-        if (t) setTarget(t.clientX, t.clientY);
-    }, { passive: true });
-    hero.addEventListener('touchend', () => { target.active = false; }, { passive: true });
-
-    new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; }).observe(hero);
-}
-
-function heroFrame() {
-    if (!hero || !heroVisible) return;
-    if (!target.active) {
-        // Gentle idle orbit so the glow feels alive on touch screens too.
-        idleT += 0.006;
-        target.x = 0.62 + Math.cos(idleT) * 0.16;
-        target.y = 0.45 + Math.sin(idleT * 1.3) * 0.18;
-    }
-    current.x = lerp(current.x, target.x, 0.07);
-    current.y = lerp(current.y, target.y, 0.07);
-
+function applyHero() {
+    if (!hero) return;
     const rect = hero.getBoundingClientRect();
     heroGlow?.style.setProperty('--gx', `${(current.x * rect.width).toFixed(1)}px`);
     heroGlow?.style.setProperty('--gy', `${(current.y * rect.height).toFixed(1)}px`);
     heroMedia?.style.setProperty('--px', `${((0.5 - current.x) * 36).toFixed(2)}px`);
     heroMedia?.style.setProperty('--py', `${((0.5 - current.y) * 24 + window.scrollY * 0.15).toFixed(2)}px`);
+}
+
+// Returns true while the glow/parallax is still easing towards its target.
+function stepHero() {
+    if (!hero || !heroVisible) return false;
+    current.x = lerp(current.x, target.x, 0.08);
+    current.y = lerp(current.y, target.y, 0.08);
+    applyHero();
+    return Math.abs(current.x - target.x) > 0.001 || Math.abs(current.y - target.y) > 0.001;
+}
+
+/* ------------------------------------------------------------------ */
+/* On-demand loop: runs only while something is moving, then sleeps     */
+/* ------------------------------------------------------------------ */
+let rafId = null;
+
+function frame() {
+    rafId = null;
+    const y = window.scrollY;
+    scrollVelocity = lerp(scrollVelocity, y - lastScrollY, 0.25);
+    const scrolled = y !== lastScrollY;
+    lastScrollY = y;
+
+    if (scrolled) updateScrollEffects();
+    updateMarquee();
+    const heroMoving = reduceMotion ? false : stepHero();
+
+    if (scrolled || heroMoving || Math.abs(scrollVelocity) > 0.05) {
+        rafId = requestAnimationFrame(frame);
+    } else {
+        scrollVelocity = 0;
+        updateMarquee();
+    }
+}
+
+function wake() {
+    if (rafId === null) rafId = requestAnimationFrame(frame);
+}
+
+window.addEventListener('scroll', wake, { passive: true });
+window.addEventListener('resize', () => { updateScrollEffects(); wake(); }, { passive: true });
+
+if (hero && !reduceMotion) {
+    const setTarget = (clientX, clientY) => {
+        const rect = hero.getBoundingClientRect();
+        target.x = clamp((clientX - rect.left) / rect.width, 0, 1);
+        target.y = clamp((clientY - rect.top) / rect.height, 0, 1);
+        wake();
+    };
+    const rest = () => { target.x = REST.x; target.y = REST.y; wake(); };
+    hero.addEventListener('pointermove', (e) => setTarget(e.clientX, e.clientY), { passive: true });
+    hero.addEventListener('pointerdown', (e) => setTarget(e.clientX, e.clientY), { passive: true });
+    hero.addEventListener('pointerleave', rest, { passive: true });
+    hero.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        if (t) setTarget(t.clientX, t.clientY);
+    }, { passive: true });
+    hero.addEventListener('touchend', rest, { passive: true });
+
+    new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; }).observe(hero);
 }
 
 /* ------------------------------------------------------------------ */
@@ -275,19 +300,25 @@ document.querySelectorAll('.spotlight').forEach((card) => {
 });
 
 /* ------------------------------------------------------------------ */
-/* Main loop                                                           */
+/* Pause decorative animations while their section is off screen        */
 /* ------------------------------------------------------------------ */
-function frame() {
-    onScrollFrame();
-    if (!reduceMotion) {
-        marqueeFrame();
-        heroFrame();
-    }
-    requestAnimationFrame(frame);
+if ('IntersectionObserver' in window) {
+    const offscreen = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            entry.target.classList.toggle('is-offscreen', !entry.isIntersecting);
+            if (marqueeAnim && entry.target.classList.contains('marquee')) {
+                entry.isIntersecting ? marqueeAnim.play() : marqueeAnim.pause();
+            }
+        });
+    });
+    document.querySelectorAll('.hero, .marquee, .cta-band').forEach((el) => offscreen.observe(el));
 }
 
-onScrollFrame();
-requestAnimationFrame(frame);
+/* ------------------------------------------------------------------ */
+/* Initial state                                                       */
+/* ------------------------------------------------------------------ */
+updateScrollEffects();
+applyHero();
 
 // Above-the-fold hero content animates in on load, without waiting for the
 // intersection observer (which browsers pause in background tabs).
