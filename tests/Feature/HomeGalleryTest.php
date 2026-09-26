@@ -16,7 +16,7 @@ class HomeGalleryTest extends TestCase
         $response->assertOk();
         $response->assertSee('The');
         $response->assertSee('Delfi Edit');
-        $response->assertSee('img/opt/hero-rose-1600.webp');
+        $response->assertSee('img/opt/hero-silk-1600.webp');
         $response->assertSee('img/opt/01-pink-polka-dot-600.webp');
         $response->assertDontSee('Follow My');
     }

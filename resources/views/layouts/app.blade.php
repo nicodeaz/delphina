@@ -8,7 +8,7 @@
     @php
         $pageTitle = trim($__env->yieldContent('title', 'Nails by Delphina - Nail Technician in Tallaght, Dublin'));
         $pageDescription = trim($__env->yieldContent('description', 'Personalised BIAB, gel extensions and detailed nail art from a private studio in Tallaght, Dublin. Book your appointment online.'));
-        $pageImage = trim($__env->yieldContent('og_image', asset('img/og-share-rose.jpg')));
+        $pageImage = trim($__env->yieldContent('og_image', asset('img/og-share-silk.jpg')));
         $canonicalUrl = url()->current();
     @endphp
 
@@ -55,7 +55,7 @@
         "@@id": "{{ url('/') }}#business",
         "name": "Nails by Delphina",
         "description": "Personalised BIAB, gel nails, soft gel extensions and nail art in a private studio in Tallaght, Dublin 24.",
-        "image": "{{ asset('img/og-share-rose.jpg') }}",
+        "image": "{{ asset('img/og-share-silk.jpg') }}",
         "logo": "{{ asset('img/logo_green.png') }}",
         "areaServed": ["Tallaght", "Dublin 24", "South Dublin"],
         "currenciesAccepted": "EUR",
@@ -84,7 +84,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     
 
     <style>
@@ -210,6 +210,21 @@
 
         .site-nav--transparent.is-scrolled .site-nav-link.is-active::after,
         .site-nav--transparent.is-scrolled .site-nav-link:hover::after {
+            background: linear-gradient(90deg, var(--brand-green), var(--brand-green-soft));
+        }
+
+        /* Transparent nav over a light hero: dark links instead of white. */
+        .site-nav--on-light .site-nav-link,
+        .site-nav--on-light .site-nav-link:hover,
+        .site-nav--on-light .site-nav-link.is-active,
+        .site-nav--on-light .mobile-menu-btn i,
+        .site-nav--on-light .site-nav-account-btn {
+            color: var(--brand-text);
+            text-shadow: none;
+        }
+
+        .site-nav--on-light .site-nav-link.is-active::after,
+        .site-nav--on-light .site-nav-link:hover::after {
             background: linear-gradient(90deg, var(--brand-green), var(--brand-green-soft));
         }
 
@@ -457,7 +472,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav id="siteNav" class="site-nav {{ request()->routeIs('home') ? 'site-nav--transparent' : 'site-nav--solid' }} fixed inset-x-0 top-0 z-50 w-full">
+    <nav id="siteNav" class="site-nav {{ request()->routeIs('home') ? 'site-nav--transparent'.(trim($__env->yieldContent('nav_theme')) === 'light' ? ' site-nav--on-light' : '') : 'site-nav--solid' }} fixed inset-x-0 top-0 z-50 w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-start h-16 md:h-20 md:justify-center">
                 <!-- Desktop Menu -->
