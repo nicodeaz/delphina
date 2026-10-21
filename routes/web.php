@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminPasswordResetController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AvailableDateController;
 use App\Http\Controllers\BookingController;
@@ -85,6 +86,12 @@ Route::get('/admin/login/verify', [AdminAuthController::class, 'showVerifyForm']
 Route::post('/admin/login/verify', [AdminAuthController::class, 'verify'])->middleware('throttle:10,1')->name('admin.login.verify.post');
 Route::post('/admin/login/resend', [AdminAuthController::class, 'resend'])->middleware('throttle:3,1')->name('admin.login.resend');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// Forgotten password: one-time link emailed to the admin
+Route::get('/admin/forgot-password', [AdminPasswordResetController::class, 'create'])->name('admin.password.request');
+Route::post('/admin/forgot-password', [AdminPasswordResetController::class, 'store'])->middleware('throttle:3,1')->name('admin.password.email');
+Route::get('/admin/reset-password/{token}', [AdminPasswordResetController::class, 'edit'])->name('admin.password.reset');
+Route::post('/admin/reset-password', [AdminPasswordResetController::class, 'update'])->middleware('throttle:10,1')->name('admin.password.store');
 
 // API Routes for booking
 Route::get('/api/appointments/available', [BookingController::class, 'getAvailableSlots'])->middleware('throttle:60,1')->name('api.appointments.available');

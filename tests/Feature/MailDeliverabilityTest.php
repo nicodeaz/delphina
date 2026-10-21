@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\AdminLoginCodeMail;
+use App\Mail\AdminPasswordResetMail;
 use App\Mail\AppointmentConfirmationMail;
 use App\Mail\NewBookingNotificationMail;
 use App\Models\Appointment;
@@ -31,6 +32,7 @@ class MailDeliverabilityTest extends TestCase
 
         $mails = [
             new AdminLoginCodeMail('123456', 10),
+            new AdminPasswordResetMail('https://example.com/admin/reset-password/abc?email=someone%40example.com', 60),
             new AppointmentConfirmationMail($appointment),
             new NewBookingNotificationMail($appointment),
         ];

@@ -37,6 +37,7 @@
             </button>
         </form>
 
+        <a href="{{ route('admin.password.request') }}" class="mt-4 block text-center text-sm font-semibold text-olive hover:underline">Forgot your password?</a>
         <a href="{{ route('home') }}" class="mt-6 block text-center text-sm text-gray-500 hover:text-olive">← Back to website</a>
     </div>
 </div>
