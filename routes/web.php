@@ -87,7 +87,10 @@ Route::post('/admin/login/verify', [AdminAuthController::class, 'verify'])->midd
 Route::post('/admin/login/resend', [AdminAuthController::class, 'resend'])->middleware('throttle:3,1')->name('admin.login.resend');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-// Forgotten password: one-time link emailed to the admin
+// Step-by-step guide to install the studio as a phone app (public: no data on it)
+Route::view('/admin/install', 'admin.install')->name('admin.install');
+
+// Forgotten password: one-time login link emailed to the admin
 Route::get('/admin/forgot-password', [AdminPasswordResetController::class, 'create'])->name('admin.password.request');
 Route::post('/admin/forgot-password', [AdminPasswordResetController::class, 'store'])->middleware('throttle:3,1')->name('admin.password.email');
 Route::get('/admin/reset-password/{token}', [AdminPasswordResetController::class, 'edit'])->name('admin.password.reset');

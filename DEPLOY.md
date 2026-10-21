@@ -71,6 +71,23 @@ docker exec -u www-data delphina php artisan studio:admin EMAIL --only   # crear
 cp data/database.sqlite ~/backups/delphina-$(date +%F).sqlite           # backup manual
 ```
 
+## Si Delfi no puede entrar (se olvidó la clave)
+
+- Ella misma: en el login, **Forgot your password?** → le llega un link de acceso de un solo uso (10 minutos)
+  para elegir una clave nueva o entrar directo.
+- Desde el servidor:
+  ```bash
+  docker exec -u www-data delphina php artisan studio:access-link EMAIL           # le manda el link por mail
+  docker exec -u www-data delphina php artisan studio:access-link EMAIL --print   # muestra el link (pasarlo por WhatsApp si el mail no llega)
+  ```
+  Si el email no es el del admin, el comando lo dice y muestra cuál es la cuenta admin actual.
+  `--create` convierte ese email en admin (las demás cuentas admin siguen igual).
+
+## App en el celular
+
+El panel se instala como app ("Delfi Studio"). Guía visual paso a paso para iPhone y Android:
+`https://nailsbydelphina.okto.ie/admin/install` (también en el menú del panel: "Get the phone app").
+
 ## Si el mail falla y Delfi no puede entrar
 
 En `.env` poner `ADMIN_TWO_FACTOR=false`, `docker compose up -d --force-recreate`, arreglar el

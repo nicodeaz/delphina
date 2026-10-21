@@ -14,7 +14,7 @@ class AdminPasswordResetMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Choose a new password for Delphina Studio')
+        return $this->subject('Your Delphina Studio login link')
             ->view('emails.admin-password-reset')
             ->text('emails.text.admin-password-reset')
             ->with([

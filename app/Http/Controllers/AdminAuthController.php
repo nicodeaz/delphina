@@ -50,7 +50,7 @@ class AdminAuthController extends Controller
                 ->withErrors(['email' => "Too many attempts. Please try again in {$seconds} seconds."]);
         }
 
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::findByEmail($credentials['email']);
 
         if (! $user || ! $user->isAdmin() || ! Hash::check($credentials['password'], $user->password)) {
             RateLimiter::hit($throttleKey, 60);
@@ -195,7 +195,8 @@ class AdminAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        // Back to the studio login (not the public site), so the installed app stays in the app.
+        return redirect()->route('admin.login');
     }
 
     private function sendCode(Request $request, User $user): bool

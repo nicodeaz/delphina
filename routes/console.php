@@ -1,9 +1,12 @@
 <?php
 
+use App\Mail\AdminPasswordResetMail;
 use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -53,3 +56,60 @@ Artisan::command('studio:admin {email} {--name=Delfi} {--password=} {--only : Re
 
     return 0;
 })->purpose('Create or update the studio admin account');
+
+/*
+ * Send the studio admin a one-time login link (same as "Forgot your
+ * password?" on the login page), e.g. when she's locked out:
+ *   php artisan studio:access-link someone@example.com
+ * --print shows the link instead of emailing it (to pass on by WhatsApp if
+ * mail isn't arriving). --create makes that email an admin first if it
+ * isn't one yet (other admins keep their access).
+ */
+Artisan::command('studio:access-link {email} {--print : Show the link instead of emailing it} {--create : Make this email the studio admin if it isn\'t one yet} {--name=Delfi}', function (string $email) {
+    $user = User::findByEmail($email);
+
+    if (! $user?->isAdmin()) {
+        if (! $this->option('create')) {
+            $admins = User::where('role', 'admin')->pluck('email');
+            $this->error($user ? "{$user->email} exists but is not a studio admin." : "No account with the email {$email}.");
+            $this->line('Studio admin account(s) right now: '.($admins->isEmpty() ? 'none' : $admins->implode(', ')));
+            $this->line('Run again with --create to make this email the studio admin.');
+
+            return 1;
+        }
+
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error('That is not a valid email address.');
+
+            return 1;
+        }
+
+        // A new account gets a random password; she chooses her own from the link.
+        $user ??= new User(['email' => Str::lower(trim($email)), 'name' => $this->option('name'), 'password' => Hash::make(Str::random(40))]);
+        $user->forceFill(['role' => 'admin'])->save();
+        $this->info("{$user->email} is now a studio admin.");
+    }
+
+    $minutes = (int) config('auth.passwords.users.expire');
+    $link = $user->createStudioAccessLink();
+
+    if ($this->option('print')) {
+        $this->line($link);
+        $this->comment("Works once, for {$minutes} minutes.");
+
+        return 0;
+    }
+
+    try {
+        Mail::to($user->email)->send(new AdminPasswordResetMail($link, $minutes));
+    } catch (Throwable $e) {
+        $this->error('Could not send the email: '.$e->getMessage());
+        $this->line('Use --print to get the link and send it another way.');
+
+        return 1;
+    }
+
+    $this->info("Login link emailed to {$user->email} (works once, for {$minutes} minutes, opens ".parse_url($link, PHP_URL_HOST).').');
+
+    return 0;
+})->purpose('Email the studio admin a one-time login link');

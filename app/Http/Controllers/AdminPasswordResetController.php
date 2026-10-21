@@ -15,9 +15,10 @@ use Illuminate\Support\Str;
 
 /**
  * "Forgot your password?" for the studio login: emails the admin a one-time
- * link (token stored hashed in password_reset_tokens, expires per
- * config('auth.passwords.users.expire'), deleted once used) that opens a
- * form to choose a new password and logs her straight in.
+ * access link (token stored hashed in password_reset_tokens, expires per
+ * config('auth.passwords.users.expire'), deleted once used). Opening it lets
+ * her choose a new password, or just log in this once. The same link can be
+ * sent from the server with `php artisan studio:access-link`.
  */
 class AdminPasswordResetController extends Controller
 {
@@ -30,15 +31,13 @@ class AdminPasswordResetController extends Controller
     {
         $request->validate(['email' => 'required|email|max:255']);
 
-        $user = User::where('email', Str::lower($request->input('email')))->first();
+        $user = User::findByEmail($request->input('email'));
 
         if ($user?->isAdmin() && ! $this->tokens()->recentlyCreatedToken($user)) {
-            $url = route('admin.password.reset', ['token' => $this->tokens()->create($user), 'email' => $user->email]);
-
             try {
-                Mail::to($user->email)->send(new AdminPasswordResetMail($url, (int) config('auth.passwords.users.expire')));
+                Mail::to($user->email)->send(new AdminPasswordResetMail($user->createStudioAccessLink(), (int) config('auth.passwords.users.expire')));
             } catch (\Throwable $e) {
-                Log::error('Failed to send admin password reset link: '.$e->getMessage());
+                Log::error('Failed to send studio access link: '.$e->getMessage());
 
                 return back()->withInput()
                     ->withErrors(['email' => 'We couldn’t send the email. Please try again in a minute.']);
@@ -46,13 +45,13 @@ class AdminPasswordResetController extends Controller
         }
 
         // Same answer for any address, so the form doesn't reveal which one is the studio's.
-        return back()->with('status', 'If that’s the studio email, a link to choose a new password is on its way. Check your inbox (and spam).');
+        return back()->with('status', 'If that’s the studio email, a login link is on its way. Check your inbox (and spam) — it works for '.config('auth.passwords.users.expire').' minutes.');
     }
 
     public function edit(Request $request, string $token)
     {
         $email = (string) $request->query('email', '');
-        $user = User::where('email', Str::lower($email))->first();
+        $user = User::findByEmail($email);
 
         return view('admin.reset-password', [
             'token' => $token,
@@ -63,16 +62,18 @@ class AdminPasswordResetController extends Controller
 
     public function update(Request $request)
     {
+        $skip = $request->boolean('skip');
+
         $validated = $request->validate([
             'token' => 'required|string',
             'email' => 'required|email|max:255',
-            'password' => 'required|string|min:10|max:255|confirmed',
+            'password' => $skip ? 'nullable' : 'required|string|min:10|max:255|confirmed',
         ], [
             'password.min' => 'Use at least 10 characters.',
             'password.confirmed' => 'The new passwords don’t match.',
         ]);
 
-        $user = User::where('email', Str::lower($validated['email']))->first();
+        $user = User::findByEmail($validated['email']);
 
         if (! $user?->isAdmin() || ! $this->tokens()->exists($user, $validated['token'])) {
             return redirect()->route('admin.password.request')
@@ -81,10 +82,12 @@ class AdminPasswordResetController extends Controller
 
         $this->tokens()->delete($user);
 
-        $user->forceFill([
-            'password' => Hash::make($validated['password']),
-            'remember_token' => Str::random(60),
-        ])->save();
+        if (! $skip) {
+            $user->forceFill([
+                'password' => Hash::make($validated['password']),
+                'remember_token' => Str::random(60),
+            ])->save();
+        }
 
         // The link already proved access to her inbox (the same thing the
         // emailed login code proves), so no second code is asked for here.

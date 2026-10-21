@@ -129,6 +129,81 @@ class AdminPasswordResetTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_link_can_just_log_in_without_changing_the_password(): void
+    {
+        $this->post(route('admin.password.email'), ['email' => 'studio@example.com']);
+        [$token, $email] = $this->tokenAndEmail($this->sentLink());
+
+        $this->post(route('admin.password.store'), ['token' => $token, 'email' => $email, 'skip' => '1'])
+            ->assertRedirect(route('admin.agenda'));
+
+        $this->assertAuthenticatedAs($this->admin);
+        $this->assertTrue(Hash::check('old password 123', $this->admin->fresh()->password));
+
+        auth()->logout();
+        $this->post(route('admin.password.store'), ['token' => $token, 'email' => $email, 'skip' => '1'])
+            ->assertRedirect(route('admin.password.request'));
+        $this->assertGuest();
+    }
+
+    public function test_links_last_ten_minutes(): void
+    {
+        $this->assertSame(10, config('auth.passwords.users.expire'));
+        $this->post(route('admin.password.email'), ['email' => 'studio@example.com']);
+        Mail::assertSent(AdminPasswordResetMail::class, fn (AdminPasswordResetMail $mail) => $mail->minutes === 10);
+    }
+
+    public function test_email_case_does_not_matter_for_login_or_links(): void
+    {
+        $this->admin->forceFill(['email' => 'Studio@Example.com'])->save();
+        config(['auth.admin_two_factor' => false]);
+
+        $this->post(route('admin.login.post'), ['email' => 'studio@example.com', 'password' => 'old password 123'])
+            ->assertRedirect(route('admin.agenda'));
+        auth()->logout();
+
+        $this->post(route('admin.password.email'), ['email' => 'STUDIO@example.com']);
+        Mail::assertSent(AdminPasswordResetMail::class, fn (AdminPasswordResetMail $mail) => $mail->hasTo('Studio@Example.com'));
+    }
+
+    public function test_access_link_command_emails_the_admin(): void
+    {
+        $this->artisan('studio:access-link', ['email' => 'Studio@example.com'])
+            ->expectsOutputToContain('Login link emailed to studio@example.com')
+            ->assertSuccessful();
+
+        [$token, $email] = $this->tokenAndEmail($this->sentLink());
+        $this->post(route('admin.password.store'), ['token' => $token, 'email' => $email, 'skip' => '1'])
+            ->assertRedirect(route('admin.agenda'));
+        $this->assertAuthenticatedAs($this->admin);
+    }
+
+    public function test_access_link_command_can_print_the_link_instead(): void
+    {
+        $this->artisan('studio:access-link', ['email' => 'studio@example.com', '--print' => true])
+            ->expectsOutputToContain('/admin/reset-password/')
+            ->assertSuccessful();
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_access_link_command_explains_an_unknown_email_and_can_create_the_admin(): void
+    {
+        $this->artisan('studio:access-link', ['email' => 'delfi@example.com'])
+            ->expectsOutputToContain('No account with the email delfi@example.com')
+            ->expectsOutputToContain('studio@example.com')
+            ->assertFailed();
+        Mail::assertNothingSent();
+
+        $this->artisan('studio:access-link', ['email' => 'Delfi@example.com', '--create' => true])
+            ->expectsOutputToContain('delfi@example.com is now a studio admin')
+            ->assertSuccessful();
+
+        $this->assertTrue(User::findByEmail('delfi@example.com')->isAdmin());
+        $this->assertTrue($this->admin->fresh()->isAdmin(), 'other admins keep their access');
+        Mail::assertSent(AdminPasswordResetMail::class, fn (AdminPasswordResetMail $mail) => $mail->hasTo('delfi@example.com'));
+    }
+
     public function test_new_password_must_be_long_enough_and_match(): void
     {
         $this->post(route('admin.password.email'), ['email' => 'studio@example.com']);

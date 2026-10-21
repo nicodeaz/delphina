@@ -38,6 +38,7 @@
         </form>
 
         <a href="{{ route('admin.password.request') }}" class="mt-4 block text-center text-sm font-semibold text-olive hover:underline">Forgot your password?</a>
+        <a href="{{ route('admin.install') }}" x-data x-show="!isStudioApp()" class="mt-3 block text-center text-sm text-gray-500 hover:text-olive"><i class="fas fa-mobile-screen mr-1"></i>Get the phone app</a>
         <a href="{{ route('home') }}" class="mt-6 block text-center text-sm text-gray-500 hover:text-olive">← Back to website</a>
     </div>
 </div>

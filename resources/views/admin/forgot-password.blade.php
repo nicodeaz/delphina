@@ -6,11 +6,9 @@
 <div class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
         <div class="mb-8 text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-olive/10 text-olive">
-                <i class="fas fa-key text-xl"></i>
-            </div>
+            <img src="{{ asset('img/studio/icon-192.png') }}" alt="" class="mx-auto h-16 w-16 rounded-2xl shadow-lg">
             <h1 class="mt-4 text-2xl font-semibold text-gray-900">Forgot your password?</h1>
-            <p class="mt-2 text-sm text-gray-600">We’ll email you a one-time link to choose a new one.</p>
+            <p class="mt-2 text-sm text-gray-600">We’ll email you a one-time login link. It works for {{ config('auth.passwords.users.expire') }} minutes.</p>
         </div>
 
         @if(session('status'))
@@ -28,7 +26,7 @@
                 @enderror
             </div>
             <button type="submit" :disabled="sending" class="w-full rounded-2xl bg-olive px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-green-700 disabled:opacity-60">
-                <span x-text="sending ? 'Sending…' : 'Email me a link'">Email me a link</span>
+                <span x-text="sending ? 'Sending…' : 'Email me a login link'">Email me a login link</span>
             </button>
         </form>
 

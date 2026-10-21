@@ -9,7 +9,28 @@
     <title>{{ trim($__env->yieldContent('title', 'Studio')) }} · Delphina Studio</title>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/studio/apple-touch-icon.png') }}">
+
+    {{-- Installable as its own phone app ("Delfi Studio"), separate from the public site --}}
+    <link rel="manifest" href="{{ asset('studio.webmanifest') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Delfi Studio">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <script>
+        window.isStudioApp = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+        // Android/Chrome: keep the install prompt so the install page can show its own button.
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            window.studioInstallPrompt = event;
+            window.dispatchEvent(new Event('studio-installable'));
+        });
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register(@json(asset('studio-sw.js')), { scope: @json(url('admin').'/') }).catch(() => {});
+            });
+        }
+    </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -69,6 +90,9 @@
             </nav>
 
             <div class="space-y-1 border-t border-stone-100 p-3">
+                <a href="{{ route('admin.install') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-stone-100">
+                    <i class="fas fa-mobile-screen w-5 text-center"></i>Get the phone app
+                </a>
                 <a href="{{ route('home') }}" target="_blank" rel="noopener" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-stone-100">
                     <i class="fas fa-arrow-up-right-from-square w-5 text-center"></i>View website
                 </a>
@@ -94,6 +118,9 @@
                 <i class="fas fa-ellipsis-vertical"></i>
             </button>
             <div x-show="menu" x-cloak @click.outside="menu = false" x-transition class="absolute right-3 top-12 w-52 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                <a href="{{ route('admin.install') }}" x-show="!isStudioApp()" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-700 hover:bg-stone-100">
+                    <i class="fas fa-mobile-screen w-5 text-center text-gray-400"></i>Get the phone app
+                </a>
                 <a href="{{ route('home') }}" target="_blank" rel="noopener" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-700 hover:bg-stone-100">
                     <i class="fas fa-arrow-up-right-from-square w-5 text-center text-gray-400"></i>View website
                 </a>
@@ -111,6 +138,31 @@
     @endif
 
     <main class="{{ $isAdmin ? 'pb-24 md:pb-10 md:pl-60' : '' }}">
+        @if($isAdmin && request()->routeIs('admin.agenda'))
+            <div x-data="installNudge()" x-show="show" x-cloak class="mx-4 mt-4 flex items-center gap-3 rounded-2xl bg-olive p-3 text-white shadow-lg md:hidden">
+                <img src="{{ asset('img/studio/icon-192.png') }}" alt="" class="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/20">
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold leading-tight">Put your studio on your home screen</p>
+                    <p class="mt-0.5 text-xs text-white/75">Open your agenda with one tap.</p>
+                </div>
+                <a href="{{ route('admin.install') }}" class="shrink-0 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-olive">Show me</a>
+                <button type="button" @click="dismiss()" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/70 hover:bg-white/10" aria-label="Not now"><i class="fas fa-times"></i></button>
+            </div>
+            <script>
+                function installNudge() {
+                    const key = 'studio-install-nudge-dismissed';
+                    let dismissed = false;
+                    try { dismissed = localStorage.getItem(key) === '1'; } catch (e) {}
+                    return {
+                        show: !window.isStudioApp() && !dismissed,
+                        dismiss() {
+                            this.show = false;
+                            try { localStorage.setItem(key, '1'); } catch (e) {}
+                        },
+                    };
+                }
+            </script>
+        @endif
         @yield('content')
     </main>
 

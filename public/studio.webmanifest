@@ -1,0 +1,32 @@
+{
+    "id": "admin/",
+    "name": "Delphina Studio",
+    "short_name": "Delfi Studio",
+    "description": "Agenda, bookings and deposits for Nails by Delphina.",
+    "start_url": "admin/agenda",
+    "scope": "admin/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f7f5ee",
+    "theme_color": "#554F13",
+    "icons": [
+        {
+            "src": "img/studio/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "img/studio/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "img/studio/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

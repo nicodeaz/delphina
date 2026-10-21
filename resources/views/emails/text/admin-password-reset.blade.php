@@ -1,9 +1,9 @@
 Delphina Studio
 
-Choose a new password:
+Your login link:
 {!! $url !!}
 
-Open the link to choose a new password. You'll go straight to your studio agenda afterwards. The link works once and expires in {!! $minutes !!} minutes.
+Open the link to get into your studio agenda. You can choose a new password there, so your phone remembers it next time. The link works once and expires in {!! $minutes !!} minutes.
 
 If you didn't ask for it, you can ignore this email — your password stays the same.
 
